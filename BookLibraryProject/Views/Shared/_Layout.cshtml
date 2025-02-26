@@ -27,6 +27,25 @@
                         </li>
                     </ul>
                 </div>
+                <ul class="navbar-nav">
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <li class="nav-item">
+                            <span class="nav-link">Xin chào, @User.Identity.Name!</span>
+                        </li>
+                        <li class="nav-item">
+                            <form class="form-inline" asp-controller="Login" asp-action="LogOut" method="post">
+                                <button type="submit" class="nav-link btn btn-link text-dark">Đăng xuất</button>
+                            </form>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-controller="Acccount" asp-action="Login">Đăng Nhập</a>
+                        </li>
+                    }
+                </ul>
             </div>
         </nav>
     </header>

@@ -1,3 +1,7 @@
+﻿using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.EntityFrameworkCore;
+
 namespace BookLibraryProject
 {
     public class Program
@@ -8,6 +12,30 @@ namespace BookLibraryProject
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
+            builder.Services.AddDbContext<BookLibraryManagementProjectContext>(options =>
+                options.UseSqlServer(builder.Configuration.GetConnectionString("BookLibraryManagement_Project")));
+
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
+            })
+                .AddCookie(options =>
+               {
+                   options.LoginPath = "/Account/Login";  // Trang đăng nhập
+                   options.AccessDeniedPath = "/Account/Logout"; // Trang bị từ chối
+                   options.Cookie.HttpOnly = true;
+                   options.ExpireTimeSpan = TimeSpan.FromMinutes(100);
+                   // Gia hạn cookie nếu còn hoạt động
+                   options.SlidingExpiration = true;
+               })
+               .AddGoogle(options =>
+               {
+                   var result = builder.Configuration.GetSection("Authentication:Google");
+                   options.ClientId = result["ClientId"];
+                   options.ClientSecret = result["ClientSecret"];
+                   options.CallbackPath = "/signInGoogle";
+               });
 
             var app = builder.Build();
 
@@ -24,6 +52,7 @@ namespace BookLibraryProject
 
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapControllerRoute(

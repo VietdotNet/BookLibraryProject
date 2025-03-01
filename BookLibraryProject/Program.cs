@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Authentication.Cookies;
+﻿using BookLibraryProject.Repositories;
+using BookLibraryProject.Services;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,6 +16,9 @@ namespace BookLibraryProject
             builder.Services.AddControllersWithViews();
             builder.Services.AddDbContext<BookLibraryManagementProjectContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("BookLibraryManagement_Project")));
+
+            builder.Services.AddScoped<IUserRepository, UserRepository>();
+            builder.Services.AddScoped<UserService>();
 
             builder.Services.AddAuthentication(options =>
             {

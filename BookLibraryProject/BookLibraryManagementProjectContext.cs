@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using BookLibraryProject.Models;
 using Microsoft.EntityFrameworkCore;
+using BookLibraryProject.ViewModel;
 
 namespace BookLibraryProject;
 
@@ -238,4 +239,6 @@ public partial class BookLibraryManagementProjectContext : DbContext
     }
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+
+public DbSet<BookLibraryProject.ViewModel.UserProfile> UserProfile { get; set; } = default!;
 }

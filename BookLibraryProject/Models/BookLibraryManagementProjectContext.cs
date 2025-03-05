@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using BookLibraryProject.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace BookLibraryProject;
+namespace BookLibraryProject.Models;
 
 public partial class BookLibraryManagementProjectContext : DbContext
 {
@@ -38,7 +37,7 @@ public partial class BookLibraryManagementProjectContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Server=(local);Database= BookLibraryManagement_Project;UID=sa;PWD=vietdeptrai123;TrustServerCertificate=True");
+        => optionsBuilder.UseSqlServer("Server=(local);Database=BookLibraryManagement_Project;UID=sa;PWD=vietdeptrai123;TrustServerCertificate=True");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -58,9 +57,6 @@ public partial class BookLibraryManagementProjectContext : DbContext
                 .HasColumnType("datetime");
             entity.Property(e => e.Description).HasMaxLength(255);
             entity.Property(e => e.Image).HasMaxLength(500);
-            entity.Property(e => e.Language)
-                .HasMaxLength(50)
-                .HasDefaultValue("Tiếng Việt");
             entity.Property(e => e.Price).HasColumnType("decimal(10, 2)");
             entity.Property(e => e.Quantity).HasDefaultValue(0);
             entity.Property(e => e.Title).HasMaxLength(255);

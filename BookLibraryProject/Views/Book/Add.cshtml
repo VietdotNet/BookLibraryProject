@@ -1,0 +1,187 @@
+﻿@model BookLibraryProject.ViewModel.AddBook
+
+<h2>Thêm sách mới</h2>
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Add" enctype="multipart/form-data" method="post"> <!-- Thêm enctype để upload file -->
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <!-- Input cho ảnh -->
+            <div class="form-group">
+                <label class="control-label">Hình ảnh</label>
+                <!--accept="image/*": chỉ có up các loại file ảnh khác nhau(là thuộc tính của type = "file"-->
+                <input type="file" name="file" class="form-control" accept="image/*" />
+                <span class="text-danger">@Html.ValidationMessage("Image")</span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Title" class="control-label"></label>
+                <input asp-for="Title" class="form-control" />
+                <span asp-validation-for="Title" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Author" class="control-label"></label>
+                <input asp-for="Author" class="form-control" />
+                <span asp-validation-for="Author" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PublishedYear" class="control-label"></label>
+                <input asp-for="PublishedYear" class="form-control" />
+                <span asp-validation-for="PublishedYear" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Description" class="control-label"></label>
+                <input asp-for="Description" class="form-control" />
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="selectedCategory" class="control-label">Danh mục sách</label>
+                <input type="text" id="selectedCategory" class="form-control" placeholder="Chưa chọn danh mục" readonly />
+                <input type="hidden" id="categoryId" name="CategoryId" />
+                <button type="button" id="showCategoryBtn" class="btn btn-secondary mt-2">Chọn danh mục</button>
+            </div>
+
+            <div id="categoryDropdown" class="dropdown-menu" style="display: none;">
+                <ul id="categoryMenu" class="list-group">
+                    @foreach (var item in ViewBag.RootCategories)
+                    {
+                        <li class="list-group-item category-item" data-id="@item.Id">
+                            <span>@item.Name</span>
+                            <ul class="sub-menu list-group"></ul>
+                        </li>
+                    }
+                </ul>
+            </div>
+
+            <div class="form-group">
+                <label class="control-label">Ngôn ngữ</label>
+                <select name="Language" class="form-control">
+                    <option value="Tiếng Việt" selected>Tiếng Việt</option>
+                    <option value="Tiếng Anh">Tiếng Anh</option>
+                </select>
+                <span asp-validation-for="Language" class="text-danger"></span>
+            </div>
+
+
+            <div class="form-group">
+                <label asp-for="Quantity" class="control-label"></label>
+                <input asp-for="Quantity" class="form-control" />
+                <span asp-validation-for="Quantity" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Price" class="control-label"></label>
+                <input asp-for="Price" class="form-control" />
+                <span asp-validation-for="Price" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CreatedAt" class="control-label"></label>
+                <input asp-for="CreatedAt" class="form-control" type="datetime-local" readonly />
+                <span asp-validation-for="CreatedAt" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="AddedById" class="control-label"></label>
+                <input asp-for="AddedById" class="form-control" readonly />
+                <span asp-validation-for="AddedById" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Thêm sách" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+
+<script>
+    document.getElementById("showCategoryBtn").addEventListener("click", function (event) {
+        let menu = document.getElementById("categoryDropdown");
+        menu.style.display = menu.style.display === "none" ? "block" : "none";
+    });
+
+    document.querySelectorAll(".category-item").forEach(item => {
+        let subMenu = item.querySelector(".sub-menu");
+
+        item.addEventListener("mouseenter", function () {
+            let categoryId = this.getAttribute("data-id");
+
+            if (subMenu.children.length === 0) {
+                fetch(`/Book/GetChildCategories?parentId=${categoryId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        subMenu.innerHTML = "";
+                        data.forEach(category => {
+                            let li = document.createElement("li");
+                            li.textContent = category.name;
+                            li.classList.add("list-group-item", "child-category");
+                            li.setAttribute("data-id", category.id);
+
+                            li.addEventListener("click", function (event) {
+                                document.getElementById("selectedCategory").value = category.name;
+                                document.getElementById("categoryId").value = category.id;
+                                document.getElementById("categoryDropdown").style.display = "none";
+                                event.stopPropagation();
+                            });
+
+                            subMenu.appendChild(li);
+                        });
+                    })
+                    .catch(error => console.error("Lỗi lấy danh mục con:", error));
+            }
+
+            subMenu.style.display = "block";
+        });
+
+        item.addEventListener("mouseleave", function () {
+            subMenu.style.display = "none";
+        });
+    });
+
+    document.addEventListener("click", function (event) {
+        let menu = document.getElementById("categoryDropdown");
+        if (!menu.contains(event.target) && event.target.id !== "showCategoryBtn") {
+            menu.style.display = "none";
+        }
+    });
+
+</script>
+
+<style>
+    .sub-menu {
+        position: absolute;
+        top: 0;
+        left: 100%;
+        background: white;
+        border: 1px solid #ddd;
+        min-width: 250px;
+        max-height: 300px;
+        overflow-y: auto;
+        box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+        padding: 5px;
+        display: none;
+        white-space: nowrap; /* Đảm bảo không bị xuống dòng */
+        z-index: 1050;
+    }
+
+    /* Hiển thị danh mục con ngay khi hover vào danh mục cha */
+    .category-item {
+        position: relative;
+    }
+
+    .category-item:hover > .sub-menu {
+            display: block;
+    }
+
+
+</style>
+
+

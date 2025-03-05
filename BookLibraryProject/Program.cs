@@ -20,6 +20,12 @@ namespace BookLibraryProject
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<UserService>();
 
+            builder.Services.AddScoped<IBookCategoryRepository, BookCategoryRepository>();
+            builder.Services.AddScoped<BookCategoryService>();
+
+            builder.Services.AddScoped<IBookRepository, BookRepository>();
+            builder.Services.AddScoped<BookService>();
+
             builder.Services.AddAuthentication(options =>
             {
                 options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;

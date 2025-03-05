@@ -19,7 +19,7 @@ namespace BookLibraryProject.Repositories
 
         public void InsertUser(string email, string name)
         {
-             _context.Database.ExecuteSqlRaw("INSERT INTO Users (FullName, Email, RoleId) VALUES ({1}, {2}, {3}, {4})", name, email, 2);
+             _context.Database.ExecuteSqlRaw("INSERT INTO Users (FullName, Email, RoleId) VALUES ({0}, {1}, {2})", name, email, 2);
         }
     }
 }

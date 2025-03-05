@@ -31,6 +31,10 @@ public partial class Book
 
     public string? AddedById { get; set; }
 
+    public string? Image { get; set; }
+
+    public string Language { get; set; } = null!;
+
     public virtual User? AddedBy { get; set; }
 
     public virtual ICollection<BorrowRecord> BorrowRecords { get; set; } = new List<BorrowRecord>();

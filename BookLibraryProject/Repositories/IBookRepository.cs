@@ -1,4 +1,5 @@
 ﻿using BookLibraryProject.Models;
+using BookLibraryProject.ViewModel;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BookLibraryProject.Repositories
@@ -10,5 +11,7 @@ namespace BookLibraryProject.Repositories
         void EditBook(Book book);
 
         void DeleteBook(int id);
+
+        Task<Book?> GetBookById(Guid id);
     }
 }

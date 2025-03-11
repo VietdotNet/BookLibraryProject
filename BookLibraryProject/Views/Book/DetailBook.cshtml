@@ -1,0 +1,45 @@
+﻿@model BookLibraryProject.Models.Book
+
+@{
+    ViewData["Title"] = "Book Details";
+}
+
+<h2 class="mb-4 text-center book-title" style="color: blue">
+    📖 <span>Chi Tiết Cuốn Sách</span> 📖
+</h2>
+<hr/>
+    <div class="row">
+        <!-- Hiển thị ảnh sách -->
+        <div class="col-md-4 text-center">
+            <img src="@Model.Image" alt="Book Cover" class="img-fluid rounded shadow-lg"
+                 onerror="this.onerror=null; this.src='/images/default-book.png';">
+        </div>
+
+        <!-- Hiển thị thông tin sách -->
+        <div class="col-md-8">
+            <h1 class="fw-bold">@Model.Title</h1>
+            <p class="text-muted">Tác giả: <span class="text-primary">@Model.Author</span></p>
+
+            <p><strong>Năm xuất bản:</strong> @Model.PublishedYear</p>
+            <p><strong>Ngôn ngữ:</strong> @Model.Language</p>
+
+            <p class="mt-3"><strong>Mô tả:</strong></p>
+            <p class="text-justify">@Model.Description</p>
+
+            <p><strong>Số lượng sách đang mượn:</strong> <span class="badge bg-success">@Model.BorrowedQuantity</span></p>
+            <p><strong>Số lượng sách có thể cho mượn:</strong> <span class="badge bg-warning">@Model.AvailableQuantity</span></p>
+
+            <!-- Nút mượn sách & quay lại -->
+            <div class="mt-4">
+                <a href="/Books/Borrow/@Model.Id" class="btn btn-primary px-4">📖 Mượn sách</a>
+                <a asp-controller="Book" asp-action="DisplayBooks" class="btn btn-outline-secondary px-4 ms-2">⬅ Quay lại thư viện sách</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .text-justify {
+        text-align: justify;
+    }
+</style>

@@ -2,7 +2,58 @@
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<header class="header-section text-center py-5">
+    <div class="container">
+        <h1 class="display-4 fw-bold">
+            <span class="text-orange">Welcome to</span> <span class="text-red">FPTU Library</span>
+        </h1>
+        <p class="lead text-white">📖 Khám phá kho tàng sách đa dạng và phong phú!</p>
+
+        <a asp-controller="Book" asp-action="DisplayBooks" class="btn btn-lg btn-warning shadow-lg px-4 mt-3">
+            📚 Đi tới thư viện sách
+        </a>
+</header>
+
+<style>
+    .header-section {
+        position: relative;
+        background: linear-gradient(135deg, #ff7eb3, #ff758c, #ff8e53, #ffb56b), url('https://source.unsplash.com/1600x400/?library,books,reading') no-repeat center center/cover;
+        min-height: 280px;
+        padding: 60px 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Màu cam cho "Welcome to" */
+    .text-orange {
+        color: aqua;
+        font-weight: 800;
+    }
+
+    /* Màu đỏ cho "FPTU Library" */
+    .text-red {
+        color: #CC0000; /* Đỏ đậm */
+        font-weight: 800;
+    }
+
+    /* Cải thiện độ tương phản cho đoạn mô tả */
+    .text-white {
+        color: #FFF;
+        font-size: 1.2rem;
+        font-weight: 600;
+    }
+
+    /* Nút bấm */
+    .btn-warning {
+        background: #ff9900;
+        border: none;
+        color: white;
+        font-weight: bold;
+    }
+
+        .btn-warning:hover {
+            background: #e68a00;
+            color: white;
+        }
+</style>

@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/BookLibraryProject.styles.css" asp-append-version="true" />
 
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
 </head>
@@ -25,7 +26,7 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Trang chủ </a>
                         </li>
                         @if (User.FindFirstValue(ClaimTypes.NameIdentifier)?.StartsWith("QL") == true)
                         {
@@ -65,11 +66,73 @@
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
+    <footer class="footer-custom text-white py-4" style="margin-top: 100px;">
         <div class="container">
-            &copy; 2025 - BookLibraryProject - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            <div class="row">
+                <!-- Cột 1: Thông tin liên hệ -->
+                <div class="col-md-6">
+                    <h5 style="color: dodgerblue">📍 Thông Tin Liên Hệ</h5>
+                    <p><i class="fas fa-map-marker-alt"></i> Đại học FPT Hà Nội - Khu Công nghệ cao Hòa Lạc, Km29 Đại lộ Thăng Long, Thạch Thất, Hà Nội</p>
+                    <p><i class="fas fa-phone"></i> 0989823021</p>
+                    <p><i class="fas fa-envelope"></i> vietnq021103@gmail.com</p>
+                </div>
+
+                <!-- Cột 2: Liên kết nhanh -->
+                <div class="col-md-3">
+                    <h5 style="color: dodgerblue">🔗 Liên Kết Nhanh</h5>
+                    <ul class="list-unstyled">
+                        <li><a asp-area="" asp-controller="Home" asp-action="Index" class="footer-link"><i class="fas fa-home"></i> Trang chủ</a></li>
+                        <li><a asp-area="" asp-controller="Book" asp-action="DisplayBooks" class="footer-link"><i class="fas fa-book"></i> Thư viện sách</a></li>
+                        <li><a asp-area="" asp-controller="Home" asp-action="Privacy" class="footer-link"><i class="fas fa-user-secret"></i> Chính sách bảo mật</a></li>
+                    </ul>
+                </div>
+
+                <!-- Cột 3: Mạng xã hội -->
+                <div class="col-md-3">
+                    <h5 style="color: dodgerblue">🌐 Theo Dõi Chúng Tôi</h5>
+                    <a href="https://facebook.com" class="social-icon"><i class="fab fa-facebook"></i></a>
+                    <a href="https://twitter.com" class="social-icon"><i class="fab fa-twitter"></i></a>
+                    <a href="https://linkedin.com" class="social-icon"><i class="fab fa-linkedin"></i></a>
+                </div>
+            </div>
+
+            <!-- Dòng bản quyền -->
+            <div class="text-center mt-3">
+                &copy; 2025 - FPT Library. All rights reserved.
+            </div>
         </div>
     </footer>
+
+    <!-- CSS -->
+    <style>
+        .footer-custom {
+            background: #343a40;
+            color: #f8f9fa;
+        }
+
+        .footer-link {
+            color: #f8f9fa;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+
+            .footer-link:hover {
+                color: #fbbc04;
+                text-decoration: underline;
+            }
+
+        .social-icon {
+            color: #f8f9fa;
+            font-size: 1.5rem;
+            margin-right: 15px;
+            transition: 0.3s;
+        }
+
+            .social-icon:hover {
+                color: #fbbc04;
+            }
+    </style>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>

@@ -56,7 +56,7 @@ public partial class BookLibraryManagementProjectContext : DbContext
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
-            entity.Property(e => e.Description).HasMaxLength(255);
+            entity.Property(e => e.Description).HasMaxLength(2000);
             entity.Property(e => e.Image).HasMaxLength(500);
             entity.Property(e => e.Language)
                 .HasMaxLength(50)

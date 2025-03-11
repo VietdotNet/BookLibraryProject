@@ -1,0 +1,201 @@
+﻿@using X.PagedList.Mvc.Core
+@using X.PagedList
+@model IPagedList<Book>
+
+@{
+    ViewData["Title"] = "Books";
+}
+
+<h2 class="mb-4 text-center">📚 Thư viện sách</h2>
+
+<div class="mb-4 d-flex align-items-center justify-content-center row">
+    <!-- Chọn danh mục -->
+    <div class="col-md-3">
+        <div class="form-group position-relative">
+            <div class="input-group">
+                <input type="text" id="selectedCategory" class="form-control" placeholder="Chưa chọn danh mục" readonly />
+                <input type="hidden" id="categoryId" name="CategoryId" />
+                <button type="button" id="showCategoryBtn" class="btn btn-outline-primary">Chọn</button>
+            </div>
+            <div id="categoryDropdown" class="dropdown-menu shadow mt-1 w-100" style="display: none;">
+                <ul id="categoryMenu" class="list-group">
+                    @foreach (var item in ViewBag.RootCategories)
+                    {
+                        <li class="list-group-item category-item" data-id="@item.Id">
+                            <span>@item.Name</span>
+                            <ul class="sub-menu list-group"></ul>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="form-group">
+            <select name="Language" class="form-select">
+                <option value="" selected disabled hidden>Chọn ngôn ngữ</option>
+                <option value="Tiếng Việt">Tiếng Việt</option>
+                <option value="Tiếng Anh">Tiếng Anh</option>
+                <option value="Tiếng Trung">Tiếng Trung</option>
+                <option value="Tiếng Hàn">Tiếng Hàn</option>
+                <option value="Tiếng Nhật">Tiếng Nhật</option>
+            </select>
+        </div>
+    </div>
+
+
+    <!-- Ô tìm kiếm -->
+    <div class="col-md-6">
+        <div class="input-group">
+            <input type="text" id="searchBox" class="form-control rounded-end" placeholder="🔍 Tìm sách theo tiêu đề hoặc tác giả...">
+        </div>
+    </div>
+</div>
+
+<!-- Book List as Cards -->
+<div class="container">
+    <div class="row row-cols-1 row-cols-md-4 g-4" id="bookContainer">
+        @foreach (var book in Model)
+        {
+            <div class="col book-card">
+                <div class="card h-100 shadow-sm book-item" onclick="location.href='@Url.Action("DetailBook", new { id = book.Id })'">
+                    <img src="@book.Image" class="card-img-top book-image" alt="Book Cover"/>
+                    <div class="card-body text-center">
+                        <h5 class="card-title fw-bold">@book.Title</h5>
+                        <p class="card-text text-muted"><i>@book.Author</i></p>
+                        <p class="card-text"><span class="badge bg-primary">@book.Category.Name</span></p>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Hiển thị phân trang -->
+<div class="d-flex justify-content-center mt-4">
+    @Html.PagedListPager(Model, page => Url.Action("DisplayBooks", new { page }), new PagedListRenderOptions
+{
+    LiElementClasses = new string[] { "page-item" },
+    PageClasses = new string[] { "page-link" }
+})
+</div>
+
+<!--Dùng javascript để search(search đến đâu hiện thị đến đó luôn) -->
+@section Scripts {
+    <script>
+        document.getElementById("searchBox").addEventListener("input", function () {
+            let filter = this.value.toLowerCase();
+            let cards = document.querySelectorAll(".book-card");
+
+            cards.forEach(card => {
+                let title = card.querySelector(".card-title").textContent.toLowerCase();
+                let author = card.querySelector(".card-text").textContent.toLowerCase();
+                let match = title.includes(filter) || author.includes(filter);
+                card.style.display = match ? "" : "none";
+            });
+        });
+    </script>
+}
+
+<script>
+    document.getElementById("showCategoryBtn").addEventListener("click", function (event) {
+        let menu = document.getElementById("categoryDropdown");
+        menu.style.display = menu.style.display === "none" ? "block" : "none";
+    });
+
+    document.querySelectorAll(".category-item").forEach(item => {
+        let subMenu = item.querySelector(".sub-menu");
+
+        item.addEventListener("mouseenter", function () {
+            let categoryId = this.getAttribute("data-id");
+
+            if (subMenu.children.length === 0) {
+                fetch(`/Book/GetChildCategories?parentId=${categoryId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        subMenu.innerHTML = "";
+                        data.forEach(category => {
+                            let li = document.createElement("li");
+                            li.textContent = category.name;
+                            li.classList.add("list-group-item", "child-category");
+                            li.setAttribute("data-id", category.id);
+
+                            li.addEventListener("click", function (event) {
+                                document.getElementById("selectedCategory").value = category.name;
+                                document.getElementById("categoryId").value = category.id;
+                                document.getElementById("categoryDropdown").style.display = "none";
+                                event.stopPropagation();
+                            });
+
+                            subMenu.appendChild(li);
+                        });
+                    })
+                    .catch(error => console.error("Lỗi lấy danh mục con:", error));
+            }
+
+            subMenu.style.display = "block";
+        });
+
+        item.addEventListener("mouseleave", function () {
+            subMenu.style.display = "none";
+        });
+    });
+
+    document.addEventListener("click", function (event) {
+        let menu = document.getElementById("categoryDropdown");
+        if (!menu.contains(event.target) && event.target.id !== "showCategoryBtn") {
+            menu.style.display = "none";
+        }
+    });
+
+</script>
+
+<style>
+    .book-item {
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+        border-radius: 12px;
+    }
+
+        .book-item:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+    .book-image {
+        width: 100%; /* Đảm bảo ảnh phủ toàn bộ chiều rộng của card */
+        max-height: 250px; /* Giữ kích thước ảnh không bị phóng to quá mức */
+        object-fit: contain; /* Đảm bảo ảnh không bị cắt xén */
+        aspect-ratio: 2/3; /* Giữ tỷ lệ ảnh sách đúng chuẩn */
+        background-color: #f8f9fa; /* Màu nền nhẹ để tránh khoảng trống thừa */
+        border-radius: 10px 10px 0 0;
+    }
+
+    .sub-menu {
+        position: absolute;
+        top: 0;
+        left: 100%;
+        background: white;
+        border: 1px solid #ddd;
+        min-width: 250px;
+        max-height: 300px;
+        overflow-y: auto;
+        box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+        padding: 5px;
+        display: none;
+        white-space: nowrap; /* Đảm bảo không bị xuống dòng */
+        z-index: 1050;
+    }
+
+    /* Hiển thị danh mục con ngay khi hover vào danh mục cha */
+    .category-item {
+        position: relative;
+    }
+
+        .category-item:hover > .sub-menu {
+            display: block;
+        }
+
+
+</style>

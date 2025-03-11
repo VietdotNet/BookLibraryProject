@@ -2,17 +2,22 @@
 using BookLibraryProject.Repositories;
 using BookLibraryProject.ViewModel;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using X.PagedList.Extensions;
+using X.PagedList;
 
 namespace BookLibraryProject.Services
 {
     public class BookService
     {
         private readonly IBookRepository _repo;
+        private readonly BookLibraryManagementProjectContext _context;
 
-        public BookService(IBookRepository repo)
+        public BookService(IBookRepository repo, BookLibraryManagementProjectContext context)
         {
             _repo = repo;
+            _context = context;
         }
 
         public async Task AddBookAsync(AddBook book, IFormFile file)
@@ -33,6 +38,24 @@ namespace BookLibraryProject.Services
             };
 
             await _repo.AddBookAsync(newBook);
+        }
+
+        public IPagedList<Book> GetListBooks(int? page)
+        {
+            int pageSize = 12; // Số sách mỗi trang
+            int pageNumber = page ?? 1;
+
+            var books = _context.Books
+                                .Include(b => b.Category) // Load danh mục sách
+                                .OrderByDescending(b => b.CreatedAt)
+                                .ToPagedList(pageNumber, pageSize); // Phân trang
+
+            return books; // 
+        }
+
+        public async Task<Book?> GetBookById(Guid id)
+        {
+            return await _repo.GetBookById(id);
         }
     }
 }

@@ -22,6 +22,13 @@ namespace BookLibraryProject.Controllers
             _webHostEnvironment = webHostEnvironment;
         }
 
+        public IActionResult DisplayBooksAsync(int? page)
+        {
+            var books = _bookService.GetListBooks(page);
+            ViewBag.RootCategories = _categoryService.GetCategories();
+            return View(books);
+        }
+
         [HttpGet]
         public IActionResult Add()
         {
@@ -33,6 +40,12 @@ namespace BookLibraryProject.Controllers
             ViewBag.RootCategories = _categoryService.GetCategories();
 
             return View(model);
+        }
+
+        public async Task<IActionResult> DetailBook(Guid id) 
+        {
+            var book = await _bookService.GetBookById(id);
+            return View(book);
         }
 
         [HttpGet]

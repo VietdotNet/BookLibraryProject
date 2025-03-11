@@ -1,4 +1,5 @@
 ﻿using BookLibraryProject.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace BookLibraryProject.Repositories
 {
@@ -24,6 +25,11 @@ namespace BookLibraryProject.Repositories
         public void EditBook(Book book)
         {
             throw new NotImplementedException();
+        }
+
+        public async Task<Book?> GetBookById(Guid id)
+        {
+            return await _context.Books.FirstOrDefaultAsync(x => x.Id == id);
         }
     }
 }

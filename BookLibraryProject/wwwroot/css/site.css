@@ -1,4 +1,4 @@
-html {
+﻿html {
   font-size: 14px;
 }
 
@@ -19,4 +19,22 @@ html {
 
 body {
   margin-bottom: 60px;
+}
+
+html, body {
+    height: 100%;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.container {
+    flex: 1; /* Đẩy footer xuống */
+}
+
+.footer-custom {
+    background: #343a40;
+    color: #f8f9fa;
+    text-align: center;
+    padding: 20px 0;
 }

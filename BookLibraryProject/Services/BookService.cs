@@ -4,8 +4,9 @@ using BookLibraryProject.ViewModel;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using X.PagedList.Extensions;
 using X.PagedList;
+using X.PagedList.Extensions;
+using X.PagedList.Mvc.Core;
 
 namespace BookLibraryProject.Services
 {
@@ -40,17 +41,40 @@ namespace BookLibraryProject.Services
             await _repo.AddBookAsync(newBook);
         }
 
-        public IPagedList<Book> GetListBooks(int? page)
+        //public IPagedList<Book> GetListBooks(int? page)
+        //{
+        //    int pageSize = 12; // Số sách mỗi trang
+        //    int pageNumber = page ?? 1;
+
+        //    var books = _context.Books
+        //                        .Include(b => b.Category) // Load danh mục sách
+        //                        .OrderByDescending(b => b.CreatedAt)
+        //                        .ToPagedList(pageNumber, pageSize); // Phân trang
+
+        //    return books; // 
+        //}
+
+        public async Task<IPagedList<Book>> GetBooksAsync(int page, int pageSize, string search, int? categoryId, string language)
         {
-            int pageSize = 12; // Số sách mỗi trang
-            int pageNumber = page ?? 1;
+            var query = _context.Books.Include(b => b.Category).AsQueryable();
 
-            var books = _context.Books
-                                .Include(b => b.Category) // Load danh mục sách
-                                .OrderByDescending(b => b.CreatedAt)
-                                .ToPagedList(pageNumber, pageSize); // Phân trang
+            if (!string.IsNullOrEmpty(search))
+            {
+                query = query.Where(b => b.Title.Contains(search) || b.Author.Contains(search));
+            }
 
-            return books; // 
+            if (categoryId.HasValue)
+            {
+                query = query.Where(b => b.Category.Id == categoryId.Value);
+            }
+
+            if (!string.IsNullOrEmpty(language))
+            {
+                query = query.Where(b => b.Language == language);
+            }
+
+            return query.OrderBy(b => b.Title).ToPagedList(page, pageSize);
+
         }
 
         public async Task<Book?> GetBookById(Guid id)

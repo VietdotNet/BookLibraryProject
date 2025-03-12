@@ -58,9 +58,11 @@
     <div class="row row-cols-1 row-cols-md-4 g-4" id="bookContainer">
         @foreach (var book in Model)
         {
-            <div class="col book-card">
+            <div class="col book-card"
+                 data-category-id="@book.Category.Id"
+                 data-language="@book.Language">
                 <div class="card h-100 shadow-sm book-item" onclick="location.href='@Url.Action("DetailBook", new { id = book.Id })'">
-                    <img src="@book.Image" class="card-img-top book-image" alt="Book Cover"/>
+                    <img src="@book.Image" class="card-img-top book-image" alt="Book Cover" />
                     <div class="card-body text-center">
                         <h5 class="card-title fw-bold">@book.Title</h5>
                         <p class="card-text text-muted"><i>@book.Author</i></p>
@@ -69,6 +71,7 @@
                 </div>
             </div>
         }
+
     </div>
 </div>
 
@@ -79,26 +82,169 @@
     LiElementClasses = new string[] { "page-item" },
     PageClasses = new string[] { "page-link" }
 })
+
+
 </div>
 
 <!--Dùng javascript để search(search đến đâu hiện thị đến đó luôn) -->
 @section Scripts {
     <script>
-        document.getElementById("searchBox").addEventListener("input", function () {
-            let filter = this.value.toLowerCase();
-            let cards = document.querySelectorAll(".book-card");
+        document.addEventListener("DOMContentLoaded", function () {
+            let selectedCategory = "";
+            let selectedLanguage = "";
 
-            cards.forEach(card => {
-                let title = card.querySelector(".card-title").textContent.toLowerCase();
-                let author = card.querySelector(".card-text").textContent.toLowerCase();
-                let match = title.includes(filter) || author.includes(filter);
-                card.style.display = match ? "" : "none";
+            // Xử lý chọn danh mục con
+            document.querySelectorAll(".child-category").forEach(item => {
+                item.addEventListener("click", function (event) {
+                    document.getElementById("selectedCategory").value = this.textContent.trim();
+                    document.getElementById("categoryId").value = this.getAttribute("data-id");
+                    document.getElementById("categoryDropdown").style.display = "none";
+                    filterBooks();
+                    event.stopPropagation();
+                });
             });
+
+
+            // Xử lý chọn ngôn ngữ
+            document.querySelector("select[name='Language']").addEventListener("change", function () {
+                selectedLanguage = this.value;
+                filterBooks();
+            });
+
+            // Xử lý ô tìm kiếm
+            document.getElementById("searchBox").addEventListener("input", function () {
+                filterBooks();
+            });
+
+            // Hàm lọc sách theo danh mục, ngôn ngữ và từ khóa tìm kiếm
+            function filterBooks() {
+                let searchFilter = document.getElementById("searchBox").value.toLowerCase();
+                let books = document.querySelectorAll(".book-card");
+
+                let selectedCategoryId = document.getElementById("categoryId").value;
+                let selectedLanguage = document.querySelector("select[name='Language']").value || "";
+
+                books.forEach(book => {
+                    let title = book.querySelector(".card-title").textContent.toLowerCase();
+                    let author = book.querySelector(".card-text").textContent.toLowerCase();
+                    let bookCategory = book.getAttribute("data-category-id");
+                    let bookLanguage = book.getAttribute("data-language");
+
+                    let matchesSearch = title.includes(searchFilter) || author.includes(searchFilter);
+                    let matchesCategory = selectedCategoryId === "" || bookCategory === selectedCategoryId;
+                    let matchesLanguage = selectedLanguage === "" || bookLanguage === selectedLanguage;
+
+                    book.style.display = matchesSearch && matchesCategory && matchesLanguage ? "" : "none";
+                });
+
+                updatePagination();
+            }
+
+            // Hiển thị dropdown danh mục
+            document.getElementById("showCategoryBtn").addEventListener("click", function () {
+                let menu = document.getElementById("categoryDropdown");
+                menu.style.display = menu.style.display === "none" ? "block" : "none";
+            });
+
+            let childCategories = {}; // Lưu danh mục con theo ID cha
+
+            document.querySelectorAll(".category-item").forEach(item => {
+                let subMenu = item.querySelector(".sub-menu");
+
+                item.addEventListener("mouseenter", function () {
+                    let categoryId = this.getAttribute("data-id");
+
+                    if (subMenu.children.length === 0) {
+                        fetch(`/Book/GetChildCategories?parentId=${categoryId}`)
+                            .then(response => response.json())
+                            .then(data => {
+                                subMenu.innerHTML = "";
+                                childCategories[categoryId] = [];
+
+                                data.forEach(category => {
+                                    let li = document.createElement("li");
+                                    li.textContent = category.name;
+                                    li.classList.add("list-group-item", "child-category");
+                                    li.setAttribute("data-id", category.id);
+
+                                    li.addEventListener("click", function (event) {
+                                        document.getElementById("selectedCategory").value = category.name;
+                                        document.getElementById("categoryId").value = category.id;
+                                        document.getElementById("categoryDropdown").style.display = "none";
+                                        filterBooks();
+                                        event.stopPropagation();
+                                    });
+
+                                    subMenu.appendChild(li);
+                                    childCategories[categoryId].push(category.id);
+                                });
+                            })
+                            .catch(error => console.error("Lỗi lấy danh mục con:", error));
+                    }
+
+                    subMenu.style.display = "block";
+                });
+
+                item.addEventListener("mouseleave", function () {
+                    subMenu.style.display = "none";
+                });
+            });
+
+            // Ẩn dropdown danh mục khi nhấn ra ngoài
+            document.addEventListener("click", function (event) {
+                let menu = document.getElementById("categoryDropdown");
+                if (!menu.contains(event.target) && event.target.id !== "showCategoryBtn") {
+                    menu.style.display = "none";
+                }
+            });
+
+            // Cập nhật phân trang sau khi lọc
+            function updatePagination() {
+                let visibleBooks = document.querySelectorAll(".book-card:not([style*='display: none'])");
+                let perPage = 8;
+                let totalPages = Math.ceil(visibleBooks.length / perPage);
+                let paginationContainer = document.querySelector(".pagination");
+
+                paginationContainer.innerHTML = "";
+
+                if (totalPages > 1) {
+                    for (let i = 1; i <= totalPages; i++) {
+                        let li = document.createElement("li");
+                        li.classList.add("page-item");
+
+                        let link = document.createElement("a");
+                        link.classList.add("page-link");
+                        link.href = "#";
+                        link.textContent = i;
+                        link.dataset.page = i;
+
+                        link.addEventListener("click", function (event) {
+                            event.preventDefault();
+                            showPage(i, perPage, visibleBooks);
+                        });
+
+                        li.appendChild(link);
+                        paginationContainer.appendChild(li);
+                    }
+
+                    showPage(1, perPage, visibleBooks);
+                }
+            }
+
+            function showPage(page, perPage, books) {
+                books.forEach((book, index) => {
+                    book.style.display = (index >= (page - 1) * perPage && index < page * perPage) ? "" : "none";
+                });
+            }
+
+
         });
+
     </script>
+
 }
 
-<script>
+@* <script>
     document.getElementById("showCategoryBtn").addEventListener("click", function (event) {
         let menu = document.getElementById("categoryDropdown");
         menu.style.display = menu.style.display === "none" ? "block" : "none";
@@ -149,7 +295,7 @@
         }
     });
 
-</script>
+</script> *@
 
 <style>
     .book-item {

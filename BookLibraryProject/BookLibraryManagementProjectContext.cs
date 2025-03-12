@@ -98,9 +98,7 @@ public partial class BookLibraryManagementProjectContext : DbContext
             entity.ToTable(tb => tb.HasTrigger("trg_CalculateFine"));
 
             entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
-            entity.Property(e => e.BorrowDate)
-                .HasDefaultValueSql("(getdate())")
-                .HasColumnType("datetime");
+            entity.Property(e => e.BorrowDate).HasDefaultValueSql("(getdate())");
             entity.Property(e => e.DueDate).HasColumnType("datetime");
             entity.Property(e => e.FineAmount)
                 .HasDefaultValue(0m)

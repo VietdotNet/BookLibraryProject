@@ -22,9 +22,10 @@ namespace BookLibraryProject.Controllers
             _webHostEnvironment = webHostEnvironment;
         }
 
-        public IActionResult DisplayBooksAsync(int? page)
+        public async Task<IActionResult> DisplayBooks(int page = 1, string search = "", int? categoryId = null, string language = "")
         {
-            var books = _bookService.GetListBooks(page);
+            int pageSize = 12;
+            var books = await _bookService.GetBooksAsync(page, pageSize, search, categoryId, language);
             ViewBag.RootCategories = _categoryService.GetCategories();
             return View(books);
         }

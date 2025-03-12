@@ -31,12 +31,131 @@
 
             <!-- Nút mượn sách & quay lại -->
             <div class="mt-4">
-                <a href="/Books/Borrow/@Model.Id" class="btn btn-primary px-4">📖 Mượn sách</a>
+                <button id="openBorrowModal" class="btn btn-primary px-4">📖 Mượn sách</button>
                 <a asp-controller="Book" asp-action="DisplayBooks" class="btn btn-outline-secondary px-4 ms-2">⬅ Quay lại thư viện sách</a>
             </div>
         </div>
     </div>
+
+<!-- Modal mượn sách -->
+<div class="modal fade" id="borrowBookModal" tabindex="-1" aria-labelledby="borrowBookModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="borrowBookModalLabel">Mượn sách</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="borrowBookForm">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Mã sách</label>
+                        <input type="text" id="bookId" class="form-control" value="@Model.Id" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Ngày tạo đơn mượn</label>
+                        <input type="datetime-local" id="borrowDate" class="form-control" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Hạn trả</label>
+                        <input type="date" id="pickupDeadline" class="form-control" readonly>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="submit" class="btn btn-primary">Xác nhận</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
+
+<script>
+    document.getElementById("openBorrowModal").addEventListener("click", function () {
+        var modal = new bootstrap.Modal(document.getElementById("borrowBookModal"));
+
+        // Lấy ngày giờ hiện tại theo múi giờ địa phương
+        let now = new Date();
+        now.setMinutes(now.getMinutes() - now.getTimezoneOffset()); //Chuyển sang đúng múi giờ địa phương
+        let formattedDate = now.toISOString().slice(0, 16); //Giữ định dạng YYYY-MM-DDTHH:MM
+
+        // Gán giá trị mặc định cho input BorrowDate
+        let borrowDateInput = document.getElementById("borrowDate");
+        borrowDateInput.value = formattedDate;
+
+        modal.show();
+    });
+
+    document.getElementById("openBorrowModal").addEventListener("click", function () {
+        var modal = new bootstrap.Modal(document.getElementById("borrowBookModal"));
+
+        // Lấy ngày giờ hiện tại theo múi giờ địa phương
+        let now = new Date();
+        now.setMinutes(now.getMinutes() - now.getTimezoneOffset()); // Chuyển sang đúng múi giờ địa phương
+        let formattedDate = now.toISOString().slice(0, 16); // Định dạng YYYY-MM-DDTHH:MM cho input datetime-local
+
+        // Gán giá trị mặc định cho input BorrowDate
+        let borrowDateInput = document.getElementById("borrowDate");
+        borrowDateInput.value = formattedDate;
+
+        // Tính toán ngày hạn trả (15 ngày sau)
+        let returnDate = new Date(now);
+        returnDate.setDate(returnDate.getDate() + 15);
+        let formattedReturnDate = returnDate.toISOString().slice(0, 10); // Định dạng YYYY-MM-DD cho input date
+
+        // Gán giá trị mặc định cho input PickupDeadline
+        let pickupDeadlineInput = document.getElementById("pickupDeadline");
+        pickupDeadlineInput.value = formattedReturnDate;
+
+        modal.show();
+    });
+
+
+
+    document.getElementById("borrowBookForm").addEventListener("submit", function (event) {
+        event.preventDefault();
+
+        var borrowData = {
+            BookId: document.getElementById("bookId").value,
+            BorrowDate: document.getElementById("borrowDate").value, 
+            PickupDeadline: document.getElementById("pickupDeadline").value,
+            StatusID: 1 // 1 = Đang chờ xác nhận
+        };
+
+        fetch('/BorrowBooks/Borrow', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(borrowData)
+        }).then(response => {
+            if (response.ok) {
+                Swal.fire({
+                    title: "Thành công!",
+                    text: "Bạn đã đăng ký mượn sách thành công! Vui lòng chờ xét duyệt.",
+                    icon: "success",
+                    confirmButtonText: "OK"
+                }).then(() => {
+                    location.reload();
+                });
+            } else {
+                Swal.fire({
+                    title: "Lỗi!",
+                    text: "Có lỗi xảy ra khi mượn sách.",
+                    icon: "error",
+                    confirmButtonText: "OK"
+                });
+            }
+        });
+
+    });
+
+    document.getElementById("borrowBookModal").addEventListener("hidden.bs.modal", function () {
+        document.body.classList.remove("modal-open"); // Xóa lớp modal-open nếu còn sót
+        document.querySelectorAll(".modal-backdrop").forEach(el => el.remove()); // Xóa backdrop
+    });
+
+</script>
+
+
+
 
 <style>
     .text-justify {

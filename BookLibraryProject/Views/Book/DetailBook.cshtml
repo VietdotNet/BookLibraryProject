@@ -1,4 +1,5 @@
-﻿@model BookLibraryProject.Models.Book
+﻿@using System.Security.Claims
+@model BookLibraryProject.Models.Book
 
 @{
     ViewData["Title"] = "Book Details";
@@ -31,7 +32,14 @@
 
             <!-- Nút mượn sách & quay lại -->
             <div class="mt-4">
+            @if (User.FindFirstValue(ClaimTypes.NameIdentifier)?.StartsWith("SV") == true)
+            {
                 <button id="openBorrowModal" class="btn btn-primary px-4">📖 Mượn sách</button>
+            }
+            @if (User.FindFirstValue(ClaimTypes.NameIdentifier)?.StartsWith("NV") == true)
+            {
+                <a asp-controller="Staff" asp-action="Index" class="btn btn-outline-secondary px-4 ms-2">⬅ Quay lại quản lý mượn/trả sách</a>
+            }
                 <a asp-controller="Book" asp-action="DisplayBooks" class="btn btn-outline-secondary px-4 ms-2">⬅ Quay lại thư viện sách</a>
             </div>
         </div>

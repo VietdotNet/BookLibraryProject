@@ -17,5 +17,25 @@ namespace BookLibraryProject.Services
         {
             await _repo.CreateRequestBorrow(record);
         }
+
+        public async Task<List<BorrowRecord>> GetListRequestBorrowByStaff()
+        {
+            return await _repo.GetListRequestBorrowByStaff();
+        }
+
+        public async Task<BorrowRecord?> GetBorrowRecordById(Guid id)
+        {
+            return await _repo.GetBorrowRecordById(id);
+        }
+
+        public async Task Update(BorrowRecord record)
+        {
+           await _repo.Update(record);
+        }
+
+        public async Task<List<BorrowRecord>> GetListApprovedByStaffAsync()
+        {
+            return await _repo.GetListApprovedByStaffAsync();
+        }
     }
 }

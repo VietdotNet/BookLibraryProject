@@ -1,0 +1,89 @@
+﻿@model List<BookLibraryProject.Models.BorrowRecord>
+
+<table class="table table-striped table-hover">
+    <thead class="table-dark">
+        <tr>
+            <th>#</th>
+            <th>Mã cuốn sách</th>
+            <th>Người mượn</th>
+            <th>MSV</th>
+            <th>Ngày đăng ký</th>
+            <th>Hạn trả</th>
+            <th>Trạng thái</th>
+            <th>Thao tác</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model != null && Model.Any())
+        {
+            int index = 1;
+            @foreach (var borrow in Model)
+            {
+                <tr>
+                    <td>@(index++)</td>
+                    <td>@borrow.Book.Id</td>
+                    <td>@borrow.User.FullName</td>
+                    <td>@borrow.User.StudentCode</td>
+                    <td>@borrow.BorrowDate</td>
+                    <td>@borrow.PickupDeadline?.ToString("dd-MM-yyyy")</td>
+                    <td>
+                        <span class="badge bg-warning">@borrow.Status.StatusName</span>
+                    </td>
+                    <td>
+                        <a asp-controller="Book" asp-action="DetailBook" asp-route-id="@borrow.BookId" class="btn btn-info btn-sm text-white">📖 Chi tiết</a>
+                        <button class="btn btn-primary btn-sm approve-btn" data-id="@borrow.Id">✔ Duyệt</button>
+                        <a asp-controller="Borrow" asp-action="Reject" asp-route-id="@borrow.Id" class="btn btn-outline-danger btn-sm">❌ Từ chối</a>
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="8" class="text-center">Không có yêu cầu mượn sách nào.</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<script>
+    $(document).on("click", ".approve-btn", function () {
+        var id = $(this).data("id");
+
+        $.ajax({
+            url: "/Staff/ApproveBorrowByStaff",
+            type: "POST",
+            data: { id: id },
+            success: function (response) {
+                if (response.success) {
+                    alert(response.message); // Thông báo duyệt thành công
+
+                    // Xóa dòng vừa duyệt khỏi danh sách chờ duyệt
+                    $("button[data-id='" + id + "']").closest("tr").remove();
+
+                    // Cập nhật danh sách đã duyệt ngay lập tức
+                    loadApprovedList();
+                } else {
+                    alert(response.message); // Hiển thị lỗi từ server nếu có
+                }
+            },
+            error: function () {
+                alert("Lỗi khi duyệt!");
+            }
+        });
+    });
+
+    function loadApprovedList() {
+        $.ajax({
+            url: "/Staff/ListBorrowRequest", // API hoặc View trả về danh sách đã duyệt
+            type: "GET",
+            success: function (data) {
+                $("#approvedListContainer").html(data); // Cập nhật danh sách đã duyệt
+            },
+            error: function () {
+                alert("Không thể tải danh sách đã duyệt!");
+            }
+        });
+    }
+</script>
+

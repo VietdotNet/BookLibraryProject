@@ -37,5 +37,10 @@ namespace BookLibraryProject.Services
         {
             return await _repo.GetListApprovedByStaffAsync();
         }
+
+        public async Task<List<BorrowRecord>> GetListRejectedByStaffAsync()
+        {
+            return await _repo.GetListRejectedByStaffAsync();
+        }
     }
 }

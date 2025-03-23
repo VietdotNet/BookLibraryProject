@@ -17,6 +17,9 @@ namespace BookLibraryProject
             builder.Services.AddDbContext<BookLibraryManagementProjectContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("BookLibraryManagement_Project")));
 
+            // Lấy MailSettings từ cấu hình (appsettings.json)
+            builder.Services.Configure<MailSettings>(builder.Configuration.GetSection("MailSettings"));
+
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<UserService>();
 
@@ -28,6 +31,8 @@ namespace BookLibraryProject
 
             builder.Services.AddScoped<IBorrowRecordRepository, BorrowRecordRepository>();
             builder.Services.AddScoped<BorrowRecordService>();
+
+            builder.Services.AddTransient<SendMailService>();
 
             builder.Services.AddAuthentication(options =>
             {

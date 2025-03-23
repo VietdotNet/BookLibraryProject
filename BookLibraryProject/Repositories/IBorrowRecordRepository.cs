@@ -14,6 +14,8 @@ namespace BookLibraryProject.Repositories
         Task Update(BorrowRecord record);
 
         Task<List<BorrowRecord>> GetListApprovedByStaffAsync();
+
+        Task<List<BorrowRecord>> GetListRejectedByStaffAsync();
     }
 
 

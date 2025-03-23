@@ -20,7 +20,10 @@ namespace BookLibraryProject.Repositories
 
         public async Task<BorrowRecord?> GetBorrowRecordById(Guid id)
         {
-            return await _context.BorrowRecords.FirstOrDefaultAsync(x => x.Id == id);
+            return await _context.BorrowRecords
+                .Include(b => b.Book)
+                .Include(b => b.User)
+                .FirstOrDefaultAsync(x => x.Id == id);
         }
 
         public async Task<List<BorrowRecord>> GetListApprovedByStaffAsync()
@@ -30,6 +33,16 @@ namespace BookLibraryProject.Repositories
                 .Include(b => b.User)
                 .Include(b => b.Status)
                 .Where(b => b.StatusId == 6) //đã xét duyệt
+                .ToListAsync();
+        }
+
+        public async Task<List<BorrowRecord>> GetListRejectedByStaffAsync()
+        {
+            return await _context.BorrowRecords
+                .Include(b => b.Book)
+                .Include(b => b.User)
+                .Include(b => b.Status)
+                .Where(b => b.StatusId == 4) //đã xét duyệt
                 .ToListAsync();
         }
 

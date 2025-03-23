@@ -32,7 +32,10 @@
                     <td>
                         <a asp-controller="Book" asp-action="DetailBook" asp-route-id="@borrow.BookId" class="btn btn-info btn-sm text-white">📖 Chi tiết</a>
                         <button class="btn btn-primary btn-sm approve-btn" data-id="@borrow.Id">✔ Duyệt</button>
-                        <a asp-controller="Borrow" asp-action="Reject" asp-route-id="@borrow.Id" class="btn btn-outline-danger btn-sm">❌ Từ chối</a>
+                        @* <a asp-controller="Staff" asp-action="Reject" asp-route-id="@borrow.Id" class="btn btn-outline-danger btn-sm">❌ Từ chối</a> *@
+                        @* <button id="openBorrowModal" class="btn btn-outline-danger btn-sm" data-id="@borrow.Id">❌ Từ chối</button> *@
+                        <button class="btn btn-outline-danger btn-sm reject-btn" data-id="@borrow.Id">❌ Từ chối</button>
+
                     </td>
                 </tr>
             }
@@ -45,6 +48,31 @@
         }
     </tbody>
 </table>
+
+<!-- Modal nhập lý do từ chối -->
+<div class="modal fade" id="borrowBookModal" tabindex="-1" aria-labelledby="borrowBookModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="borrowBookModalLabel">Lý do từ chối</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="borrowBookForm">
+                <div class="modal-body">
+                    <input type="hidden" id="borrowId"> <!-- Giữ ID của yêu cầu mượn -->
+                    <div class="mb-3">
+                        <label class="form-label">Nhập lý do</label>
+                        <input type="text" id="reason" class="form-control">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="submit" class="btn btn-primary">Xác nhận</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
 <script>
     $(document).on("click", ".approve-btn", function () {
@@ -85,5 +113,71 @@
             }
         });
     }
+
+
+    $(document).on("click", ".reject-btn", function () {
+        var borrowId = $(this).data("id");
+        $("#borrowId").val(borrowId);
+        var modal = new bootstrap.Modal(document.getElementById("borrowBookModal"));
+        modal.show();
+    });
+
+    document.getElementById("borrowBookModal").addEventListener("hidden.bs.modal", function () {
+        document.body.classList.remove("modal-open"); // Xóa lớp modal-open nếu còn sót
+        document.querySelectorAll(".modal-backdrop").forEach(el => el.remove()); // Xóa backdrop
+    });
+
+    $("#borrowBookForm").on("submit", function (event) {
+        event.preventDefault();
+
+        var id = $("#borrowId").val();
+        var reason = $("#reason").val();
+
+        if (!reason.trim()) {
+            alert("Vui lòng nhập lý do từ chối!");
+            return;
+        }
+
+        $.ajax({
+            url: "/Staff/RejectBorrowByStaff",
+            type: "POST",
+            contentType: "application/json",
+            data: JSON.stringify({ id: id, reason: reason }),
+            success: function (response) {
+                if (response.success) {
+                    alert("Đã từ chối yêu cầu mượn sách!");
+
+                    // Xóa dòng yêu cầu bị từ chối khỏi danh sách
+                    $("button[data-id='" + id + "']").closest("tr").remove();
+
+                    // Đóng modal
+                    $("#borrowBookModal").modal("hide");
+
+                    // Cập nhật danh sách đã từ chối
+                    loadRejectedList();
+                } else {
+                    alert(response.message);
+                }
+            },
+            error: function () {
+                alert("Có lỗi xảy ra khi từ chối!");
+            }
+        });
+    });
+
+    // Hàm load danh sách đã từ chối
+    function loadRejectedList() {
+        $.ajax({
+            url: "/Staff/ListRejectedBorrowByStaff",
+            type: "GET",
+            success: function (data) {
+                $("#rejectedListContainer").html(data);
+            },
+            error: function () {
+                alert("Không thể tải danh sách đã từ chối!");
+            }
+        });
+    }
+
 </script>
 

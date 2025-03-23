@@ -27,6 +27,8 @@ public partial class BorrowRecord
 
     public DateTime? ApprovedDate { get; set; }
 
+    public string? Reason { get; set; }
+
     public virtual Book Book { get; set; } = null!;
 
     public virtual User? Staff { get; set; }

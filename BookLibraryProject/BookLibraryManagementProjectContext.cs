@@ -105,6 +105,7 @@ public partial class BookLibraryManagementProjectContext : DbContext
                 .HasDefaultValue(0m)
                 .HasColumnType("decimal(10, 2)");
             entity.Property(e => e.PickupDeadline).HasColumnType("datetime");
+            entity.Property(e => e.Reason).HasMaxLength(4000);
             entity.Property(e => e.ReturnDate).HasColumnType("datetime");
             entity.Property(e => e.StaffId).HasMaxLength(10);
             entity.Property(e => e.StatusId).HasColumnName("StatusID");

@@ -32,7 +32,7 @@
                 <a class="nav-link" data-bs-toggle="tab" href="#overdueList">📅 Quá hạn</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-bs-toggle="tab" href="#canceledList">❌ Đã hủy</a>
+                <a class="nav-link" data-bs-toggle="tab" href="#canceledList" id="loadRejectedList">❌ Đã hủy</a>
             </li>
         </ul>
 
@@ -153,26 +153,9 @@
             <!-- Danh sách đã hủy -->
             <div class="tab-pane fade" id="canceledList">
                 <h4 class="text-primary">❌ Danh sách đã hủy</h4>
-                <table class="table table-striped table-hover">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>#</th>
-                            <th>Tên sách</th>
-                            <th>Người mượn</th>
-                            <th>Ngày đăng ký</th>
-                            <th>Trạng thái</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>1</td>
-                            <td>Java Spring Boot</td>
-                            <td>Phạm Văn D</td>
-                            <td>2025-03-05</td>
-                            <td><span class="badge bg-danger">Đã hủy</span></td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div id="rejectedListContent">
+                    <p class="text-center">Đang tải danh sách...</p>
+                </div>
             </div>
 
             <!-- Danh sách trễ hạn trả sách -->
@@ -268,6 +251,20 @@
             });
         }
 
+        function loadRejectedList() {
+            $("#rejectedListContent").html("<p class='text-center'>Đang tải...</p>");
+            $.ajax({
+                url: "/Staff/ListRejectedBorrowByStaff",
+                type: "GET",
+                success: function (data) {
+                    $("#rejectedListContent").html(data);
+                },
+                error: function () {
+                    $("#rejectedListContent").html("<p class='text-danger'>Lỗi khi tải danh sách!</p>");
+                }
+            });
+        }
+
         // Gọi Ajax khi click vào từng tab
         $("#loadPendingList").on("click", function (e) {
             e.preventDefault();
@@ -279,6 +276,11 @@
             loadApprovedList();
         });
 
+        $("#loadRejectedList").on("click", function (e) {
+            e.preventDefault();
+            loadRejectedList()
+        });
+
         $(".approve-btn").click(function () {
             var id = $(this).data("id");
 
@@ -287,6 +289,7 @@
                     alert("Duyệt thành công!");
                     loadPendingList(); // Load lại danh sách đăng ký
                     loadApprovedList(); // Load lại danh sách đã duyệt
+                    loadRejectedList();
                 } else {
                     alert("Lỗi khi duyệt!");
                 }
@@ -296,6 +299,7 @@
         // Gọi khi trang load lần đầu
         loadPendingList();
         loadApprovedList();
+        loadRejectedList();
     });
 </script>
 

@@ -8,7 +8,7 @@ namespace BookLibraryProject.Repositories
     {
         Task AddBookAsync(Book book);
 
-        void EditBook(Book book);
+        Task UpdateBookAsync(Book book);
 
         void DeleteBook(int id);
 

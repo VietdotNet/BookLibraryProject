@@ -58,6 +58,7 @@ public partial class BookLibraryManagementProjectContext : DbContext
                 .HasColumnType("datetime");
             entity.Property(e => e.Description).HasMaxLength(2000);
             entity.Property(e => e.Image).HasMaxLength(500);
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
             entity.Property(e => e.Language)
                 .HasMaxLength(50)
                 .HasDefaultValue("Tiếng Việt");

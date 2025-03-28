@@ -35,6 +35,8 @@ public partial class Book
 
     public string Language { get; set; } = null!;
 
+    public bool IsActive { get; set; } = true;
+
     public virtual User? AddedBy { get; set; }
 
     public virtual ICollection<BorrowRecord> BorrowRecords { get; set; } = new List<BorrowRecord>();

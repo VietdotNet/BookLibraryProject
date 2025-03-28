@@ -1,5 +1,6 @@
 ﻿@using X.PagedList.Mvc.Core
 @using X.PagedList
+@using System.Security.Claims
 @model IPagedList<Book>
 
 @{
@@ -75,16 +76,32 @@
     </div>
 </div>
 
-<!-- Hiển thị phân trang -->
-<div class="d-flex justify-content-center mt-4">
-    @Html.PagedListPager(Model, page => Url.Action("DisplayBooks", new { page }), new PagedListRenderOptions
+@if (User.FindFirstValue(ClaimTypes.NameIdentifier)?.StartsWith("QL") == true || User.FindFirstValue(ClaimTypes.NameIdentifier)?.StartsWith("Ad") == true)
+{
+    <!-- Hiển thị phân trang -->
+    <div class="d-flex justify-content-center mt-4">
+        @Html.PagedListPager(Model, page => Url.Action("DisplayBooksOfManager", new { page }), new PagedListRenderOptions
 {
     LiElementClasses = new string[] { "page-item" },
     PageClasses = new string[] { "page-link" }
 })
 
 
-</div>
+    </div>
+}
+else
+{
+    <!-- Hiển thị phân trang -->
+    <div class="d-flex justify-content-center mt-4">
+        @Html.PagedListPager(Model, page => Url.Action("DisplayBooks", new { page }), new PagedListRenderOptions
+{
+    LiElementClasses = new string[] { "page-item" },
+    PageClasses = new string[] { "page-link" }
+})
+
+
+    </div>
+}
 
 <!--Dùng javascript để search(search đến đâu hiện thị đến đó luôn) -->
 @section Scripts {

@@ -41,22 +41,39 @@ namespace BookLibraryProject.Services
             await _repo.AddBookAsync(newBook);
         }
 
-        //public IPagedList<Book> GetListBooks(int? page)
-        //{
-        //    int pageSize = 12; // Số sách mỗi trang
-        //    int pageNumber = page ?? 1;
-
-        //    var books = _context.Books
-        //                        .Include(b => b.Category) // Load danh mục sách
-        //                        .OrderByDescending(b => b.CreatedAt)
-        //                        .ToPagedList(pageNumber, pageSize); // Phân trang
-
-        //    return books; // 
-        //}
+        public async Task UpdateBookAsync(Book book)
+        {
+             await _repo.UpdateBookAsync(book);
+        }
 
         public async Task<IPagedList<Book>> GetBooksAsync(int page, int pageSize, string search, int? categoryId, string language)
         {
             var query = _context.Books.Include(b => b.Category).AsQueryable();
+
+            if (!string.IsNullOrEmpty(search))
+            {
+                query = query.Where(b => b.Title.Contains(search) || b.Author.Contains(search));
+            }
+
+            if (categoryId.HasValue)
+            {
+                query = query.Where(b => b.Category.Id == categoryId.Value);
+            }
+
+            if (!string.IsNullOrEmpty(language))
+            {
+                query = query.Where(b => b.Language == language);
+            }
+
+            return query.OrderBy(b => b.Title).ToPagedList(page, pageSize);
+
+        }
+
+        public async Task<IPagedList<Book>> GetBooksIsActiveAsync(int page, int pageSize, string search, int? categoryId, string language)
+        {
+            var query = _context.Books.Include(b => b.Category)
+                                      .Where(b => b.IsActive == true)
+                                      .AsQueryable();
 
             if (!string.IsNullOrEmpty(search))
             {

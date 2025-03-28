@@ -22,14 +22,17 @@ namespace BookLibraryProject.Repositories
             throw new NotImplementedException();
         }
 
-        public void EditBook(Book book)
+        public async Task UpdateBookAsync(Book book)
         {
-            throw new NotImplementedException();
+            _context.Books.Update(book);
+            await _context.SaveChangesAsync();
         }
 
         public async Task<Book?> GetBookById(Guid id)
         {
-            return await _context.Books.FirstOrDefaultAsync(x => x.Id == id);
+            return await _context.Books
+                                 .Include(x => x.Category)
+                                 .FirstOrDefaultAsync(x => x.Id == id);
         }
     }
 }

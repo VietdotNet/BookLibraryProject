@@ -50,6 +50,20 @@
             {
                 <a asp-controller="Staff" asp-action="Index" class="btn btn-outline-secondary px-4 ms-2">⬅ Quay lại quản lý mượn/trả sách</a>
             }
+
+            @if (User.FindFirstValue(ClaimTypes.NameIdentifier)?.StartsWith("QL") == true)
+            {
+                <div class="d-flex align-items-center gap-2">
+                <button id="openUpdateModal" class="btn btn-primary px-4">📖 Cập nhật </button>
+
+                <form asp-action="ToggleNewsStatus" method="post">
+                    <input type="hidden" name="id" value="@Model.Id" />
+                    <button type="submit" class="btn btn-primary px-4 @(Model.IsActive == true ? "btn-danger" : "btn-success")">
+                        @(Model.IsActive == true ? "Ẩn" : "Phát hành")
+                    </button>
+                </form>
+                </div>
+            }
                 <a asp-controller="Book" asp-action="DisplayBooks" class="btn btn-outline-secondary px-4 ms-2">⬅ Quay lại thư viện sách</a>
             </div>
         </div>
@@ -81,6 +95,93 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
                     <button type="submit" class="btn btn-primary">Xác nhận</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal cập nhật sách -->
+<div class="modal fade" id="updateBookModal" tabindex="-1" aria-labelledby="updateBookModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="updateBookModalLabel">Cập nhật sách</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="updateBookForm">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Mã sách</label>
+                        <input type="text" id="bookId" class="form-control" value="@Model.Id" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Tên sách</label>
+                        <input type="text" id="title" class="form-control" value="@Model.Title" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Tác giả</label>
+                        <input type="text" id="author" class="form-control" value="@Model.Author" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Năm xuất bản</label>
+                        <input type="text" id="publishedYear" class="form-control" value="@Model.PublishedYear" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Mô tả</label>
+                        <input type="text" id="description" class="form-control" value="@Model.Description" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="selectedCategory" class="control-label">Danh mục sách</label>
+                        <input type="text" id="selectedCategory" class="form-control" value="@Model.Category.Name" readonly />
+                        <input type="hidden" id="categoryId" name="CategoryId" value="@Model.Category.Id" />
+                        <button type="button" id="showCategoryBtn" class="btn btn-secondary mt-2">Chọn danh mục</button>
+                    </div>
+                    <div id="categoryDropdown" class="dropdown-menu" style="display: none;">
+                        <ul id="categoryMenu" class="list-group">
+                            @foreach (var item in ViewBag.RootCategories)
+                            {
+                                <li class="list-group-item category-item" data-id="@item.Id">
+                                    <span>@item.Name</span>
+                                    <ul class="sub-menu list-group"></ul>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Số lượng</label>
+                        <input type="text" id="quantity" class="form-control" value="@Model.Quantity" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Giá</label>
+                        <input type="text" id="price" class="form-control" value="@Model.Price" />
+                    </div>
+
+                    <div class="form-group">
+                        <label class="control-label">Ngôn ngữ</label>
+                        <select name="Language" class="form-select">
+                            <option value="@Model.Language" selected>@Model.Language</option>
+                            <option value="Tiếng Việt">Tiếng Việt</option>
+                            <option value="Tiếng Anh">Tiếng Anh</option>
+                            <option value="Tiếng Trung">Tiếng Trung</option>
+                            <option value="Tiếng Hàn">Tiếng Hàn</option>
+                            <option value="Tiếng Nhật">Tiếng Nhật</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Được thêm bởi</label>
+                        <input type="text" id="staff" class="form-control" value="@Model.AddedById" readonly />
+                    </div>
+
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="submit" class="btn btn-primary">Cập nhật</button>
                 </div>
             </form>
         </div>
@@ -172,11 +273,140 @@
 
 </script>
 
+<script>
+    document.getElementById("openUpdateModal").addEventListener("click", function () {
+        var modal = new bootstrap.Modal(document.getElementById("updateBookModal"));
+        modal.show();
+    });
 
+    document.getElementById("updateBookModal").addEventListener("hidden.bs.modal", function () {
+        document.body.classList.remove("modal-open"); // Xóa lớp modal-open nếu còn sót
+        document.querySelectorAll(".modal-backdrop").forEach(el => el.remove()); // Xóa backdrop
+    });
+
+        document.getElementById("updateBookForm").addEventListener("submit", function (event) {
+            event.preventDefault();
+
+            var bookData = {
+                Id: document.getElementById("bookId").value,
+                Title: document.getElementById("title").value,
+                Author: document.getElementById("author").value,
+                PublishedYear: document.getElementById("publishedYear").value,
+                Description: document.getElementById("description").value,
+               CategoryId: parseInt(document.getElementById("categoryId").value), // Fix here
+                Quantity: document.getElementById("quantity").value,
+                Price: document.getElementById("price").value,
+                Language: document.querySelector("select[name='Language']").value
+            };
+
+        fetch('/Book/UpdateBook', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(bookData)
+            }).then(response => response.json())
+                .then(data => {
+                    Swal.fire({
+                        title: "Thành công!",
+                        text: data.message,
+                        icon: "success",
+                        confirmButtonText: "OK"
+                    }).then(() => location.reload());
+                })
+                .catch(error => {
+                    Swal.fire({
+                        title: "Lỗi!",
+                        text: "Có lỗi xảy ra khi cập nhật sách.",
+                        icon: "error",
+                        confirmButtonText: "OK"
+                    });
+                    console.error("Lỗi cập nhật sách:", error);
+                });
+        });
+
+
+</script>
+
+<script>
+    document.getElementById("showCategoryBtn").addEventListener("click", function (event) {
+        let menu = document.getElementById("categoryDropdown");
+        menu.style.display = menu.style.display === "none" ? "block" : "none";
+    });
+
+    document.querySelectorAll(".category-item").forEach(item => {
+        let subMenu = item.querySelector(".sub-menu");
+
+        item.addEventListener("mouseenter", function () {
+            let categoryId = this.getAttribute("data-id");
+
+            if (subMenu.children.length === 0) {
+                fetch(`/Book/GetChildCategories?parentId=${categoryId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        subMenu.innerHTML = "";
+                        data.forEach(category => {
+                            let li = document.createElement("li");
+                            li.textContent = category.name;
+                            li.classList.add("list-group-item", "child-category");
+                            li.setAttribute("data-id", category.id);
+
+                            li.addEventListener("click", function (event) {
+                                document.getElementById("selectedCategory").value = category.name;
+                                document.getElementById("categoryId").value = category.id;
+                                document.getElementById("categoryDropdown").style.display = "none";
+                                event.stopPropagation();
+                            });
+
+                            subMenu.appendChild(li);
+                        });
+                    })
+                    .catch(error => console.error("Lỗi lấy danh mục con:", error));
+            }
+
+            subMenu.style.display = "block";
+        });
+
+        item.addEventListener("mouseleave", function () {
+            subMenu.style.display = "none";
+        });
+    });
+
+    document.addEventListener("click", function (event) {
+        let menu = document.getElementById("categoryDropdown");
+        if (!menu.contains(event.target) && event.target.id !== "showCategoryBtn") {
+            menu.style.display = "none";
+        }
+    });
+
+</script>
 
 
 <style>
     .text-justify {
         text-align: justify;
     }
+
+    .sub-menu {
+        position: absolute;
+        top: 0;
+        left: 100%;
+        background: white;
+        border: 1px solid #ddd;
+        min-width: 250px;
+        max-height: 300px;
+        overflow-y: auto;
+        box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+        padding: 5px;
+        display: none;
+        white-space: nowrap; /* Đảm bảo không bị xuống dòng */
+        z-index: 1050;
+    }
+
+    /* Hiển thị danh mục con ngay khi hover vào danh mục cha */
+    .category-item {
+        position: relative;
+    }
+
+        .category-item:hover > .sub-menu {
+            display: block;
+        }
 </style>

@@ -42,6 +42,12 @@
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Staff" asp-action="Index">Quản lý mượn/trả sách</a>
                             </li>
                         }
+                        @if (User.FindFirstValue(ClaimTypes.NameIdentifier)?.StartsWith("SV") == true)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Student" asp-action="Index">Lịch sử mượn/trả sách</a>
+                            </li>
+                        }
 
                     </ul>
                 </div>

@@ -1,0 +1,111 @@
+﻿@model List<BookLibraryProject.Models.BorrowRecord>
+
+<table class="table table-striped table-hover">
+    <thead class="table-dark">
+        <tr>
+            <th>#</th>
+            <th>Tên sách</th>
+            <th>Email</th>
+            <th>MSV</th>
+            <th>Ngày đăng ký</th>
+            <th>Ngày lấy</th>
+            <th>Hạn trả</th>
+            <th>Trạng thái</th>
+            <th>Thao tác</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model != null && Model.Any())
+        {
+            int index = 1;
+            @foreach (var borrow in Model)
+            {
+                <tr>
+                    <td>@(index++)</td>
+                    <td>@borrow.Book.Title</td>
+                    <td>@borrow.User.Email</td>
+                    <td>@borrow.User.StudentCode</td>
+                    <td>@borrow.BorrowDate</td>
+                    <td>@borrow.DueDate</td>
+                    <td class="text-danger fw-bold">@borrow.PickupDeadline?.ToString("dd-MM-yyyy")</td>
+                    <td>
+                        <span class="badge bg-danger">@borrow.Status.StatusName</span>
+                    </td>
+                    <td>
+                        <a asp-controller="Book" asp-action="DetailBook" asp-route-id="@borrow.BookId" class="btn btn-info btn-sm text-white">📖 Chi tiết</a>
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="8" class="text-center">Không có yêu cầu mượn sách nào bị quá hạn.</td>
+            </tr>
+        }
+
+        
+    </tbody>
+</table>
+
+<script>
+    $(document).on("click", ".approve-btn-overdue", function () {
+        var id = $(this).data("id");
+
+        $.ajax({
+            url: "/Staff/ConfirmReturnedByStaff",
+            type: "POST",
+            data: { id: id },
+            success: function (response) {
+                if (response.success) {
+                    alert(response.message); // Hiển thị thông báo thành công
+
+                    // Xóa dòng đã duyệt khỏi danh sách chờ duyệt
+                    $("button[data-id='" + id + "']").closest("tr").remove();
+
+                    // Cập nhật danh sách đang mượn
+                    loadOverdueList()
+                } else {
+                    alert("Lỗi: " + response.message); // Hiển thị thông báo lỗi từ server
+                }
+            },
+            error: function () {
+                alert("Lỗi khi thực hiện thao tác 'Đã trả!");
+            }
+        });
+    });
+
+
+    function loadOverdueList() {
+        $.ajax({
+            url: "/Staff/ListOverdueByStaff",
+            type: "GET",
+            success: function (data) {
+                $("#overdueListContainer").html(data);
+            },
+            error: function () {
+                alert("Không thể tải danh sách đã duyệt!");
+            }
+        });
+    }
+
+    $(document).on("click", ".approve-btn-remind", function () {
+        var id = $(this).data("id");
+
+        $.ajax({
+            url: "/Staff/RemindByStaff",
+            type: "POST",
+            data: { id: id },
+            success: function (response) {
+                if (response.success) {
+                    alert(response.message); // Thông báo duyệt thành công
+                } else {
+                    alert(response.message); // Hiển thị lỗi từ server nếu có
+                }
+            },
+            error: function () {
+                alert("Lỗi khi duyệt!");
+            }
+        });
+    });
+</script>

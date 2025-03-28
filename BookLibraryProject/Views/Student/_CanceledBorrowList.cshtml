@@ -1,0 +1,48 @@
+﻿@model List<BookLibraryProject.Models.BorrowRecord>
+
+<table class="table table-striped table-hover">
+    <thead class="table-dark">
+        <tr>
+            <th>#</th>
+            <th>Tên sách</th>
+            <th>Người mượn</th>
+            <th>MSV</th>
+            <th>Ngày đăng ký</th>
+            <th>Hạn trả</th>
+            <th>Trạng thái</th>
+            <th>Lý do</th>
+            <th>Thao tác</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model != null && Model.Any())
+        {
+            int index = 1;
+            @foreach (var borrow in Model)
+            {
+                <tr>
+                    <td>@(index++)</td>
+                    <td>@borrow.Book.Title</td>
+                    <td>@borrow.User.FullName</td>
+                    <td>@borrow.User.StudentCode</td>
+                    <td>@borrow.BorrowDate</td>
+                    <td>@borrow.PickupDeadline?.ToString("dd-MM-yyyy")</td>
+                    <td>
+                        <span class="badge bg-danger">@borrow.Status.StatusName</span>
+                    </td>
+                    <td>@borrow.Reason</td>
+                    <td>
+                        <a asp-controller="Book" asp-action="DetailBook" asp-route-id="@borrow.BookId" class="btn btn-info btn-sm text-white">📖 Chi tiết</a>
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="8" class="text-center">Không có yêu cầu nào đã hủy.</td>
+            </tr>
+        }
+    </tbody>
+</table>
+

@@ -78,6 +78,41 @@ namespace BookLibraryProject.Services
             return await _repo.GetListOverdueByStaffAsync();
         }
 
+        public async Task<List<BorrowRecord>> GetListRequestBorrowByStudent(string Id)
+        {
+            return await _repo.GetListRequestBorrowByStudentAsync(Id);
+        }
+
+        public async Task<List<BorrowRecord>> GetListCanceledBorrowByStudentAsync(string Id)
+        {
+            return await _repo.GetListCanceledBorrowByStudentAsync(Id);
+        }
+
+        public async Task<List<BorrowRecord>> GetListApprovedBorrowByStudentAsync(string Id)
+        {
+            return await _repo.GetListApprovedBorrowByStudentAsync(Id);
+        }
+
+        public async Task<List<BorrowRecord>> GetListBorrowingByStudentAsync(string Id)
+        {
+            return await _repo.GetListBorrowingByStudentAsync(Id);
+        }
+
+        public async Task<List<BorrowRecord>> GetListOverdueByStudentAsync(string Id)
+        {
+            return await _repo.GetListOverdueByStudentAsync(Id);
+        }
+
+        public async Task<List<BorrowRecord>> GetListReturnedByStudentAsync(string Id)
+        {
+            return await _repo.GetListReturnedByStudentAsync(Id);
+        }
+
+        public async Task<List<BorrowRecord>> GetListRejectedByStaffAsync(string Id)
+        {
+            return await _repo.GetListRejectedByStaffAsync(Id);
+        }
+
 
 
     }

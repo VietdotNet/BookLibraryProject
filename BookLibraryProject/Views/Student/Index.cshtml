@@ -1,0 +1,265 @@
+﻿@model List<BookLibraryProject.Models.BorrowRecord>
+
+@{
+    ViewData["Title"] = "Quản lý mượn sách";
+}
+
+<h2 class="mb-4 text-center text-primary">
+    📚 Lịch sử Mượn/Trả Sách 📚
+</h2>
+
+<div class="card shadow-lg">
+    <div class="card-body">
+        <!-- Tabs điều hướng -->
+        <ul class="nav nav-tabs mb-3" id="borrowTabs">
+            <li class="nav-item">
+                <a class="nav-link active" data-bs-toggle="tab" href="#pendingList" id="loadPendingList">
+                    📌 Danh sách đăng ký mượn
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-bs-toggle="tab" href="#approvedList" id="loadApprovedList">
+                    ✔ Chờ lấy sách
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-bs-toggle="tab" href="#borrowingList" id="loadBorrowingList">
+                    📖 Đang mượn
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-bs-toggle="tab" href="#overdueList" id="loadOverdueList">
+                    📅 Quá hạn
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-bs-toggle="tab" href="#returnedList" id="loadReturnedList">
+                    ✅ Đã trả
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-bs-toggle="tab" href="#rejectedList" id="loadRejectedList">
+                    ❌ Bị từ chối
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-bs-toggle="tab" href="#canceledList" id="loadCanceledList">
+                    ❌ Đã hủy
+                </a>
+            </li>
+        </ul>
+
+        <!-- Nội dung của từng tab -->
+        <div class="tab-content">
+
+            <!-- Danh sách đăng ký mượn -->
+            <div class="tab-pane fade show active" id="pendingList">
+                <h4 class="text-primary">📌 Danh sách đăng ký mượn</h4>
+                <div id="pendingListContent">
+                    <p class="text-center">Đang tải danh sách...</p>
+                </div>
+            </div>
+
+            <!-- Danh sách đã duyệt(Chờ lấy sách) -->
+            <div class="tab-pane fade" id="approvedList">
+                <h4 class="text-primary">✔ Danh sách đã duyệt</h4>
+                <div id="approvedListContent">
+                    <p class="text-center">Đang tải danh sách...</p>
+                </div>
+            </div>
+
+            <!-- Danh sách đang mượn -->
+            <div class="tab-pane fade" id="borrowingList">
+                <h4 class="text-primary">📖 Danh sách đang mượn</h4>
+                <div id="borrowingListContent">
+                    <p class="text-center">Đang tải danh sách...</p>
+                </div>
+            </div>
+
+            <!-- Danh sách trễ hạn trả sách -->
+            <div class="tab-pane fade" id="overdueList">
+                <h4 class="text-danger">📅 Danh sách quá hạn trả sách</h4>
+                <div id="overdueListContent">
+                    <p class="text-center">Đang tải danh sách...</p>
+                </div>
+            </div>
+
+            <!-- Danh sách đã trả -->
+            <div class="tab-pane fade" id="returnedList">
+                <h4 class="text-primary">✅ Danh sách đã trả</h4>
+                <div id="returnedListContent">
+                    <p class="text-center">Đang tải danh sách...</p>
+                </div>
+            </div>
+
+            <!-- Danh sách bị từ chối -->
+            <div class="tab-pane fade" id="rejectedList">
+                <h4 class="text-primary">❌ Danh sách bị từ chối</h4>
+                <div id="rejectedListContent">
+                    <p class="text-center">Đang tải danh sách...</p>
+                </div>
+            </div>
+
+            <!-- Danh sách đã hủy -->
+            <div class="tab-pane fade" id="canceledList">
+                <h4 class="text-primary">❌ Danh sách đã hủy</h4>
+                <div id="canceledListContent">
+                    <p class="text-center">Đang tải danh sách...</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        function loadPendingList() {
+            $("#pendingListContent").html("<p class='text-center'>Đang tải...</p>");
+            $.ajax({
+                url: "/Student/ListBorrowRequest",
+                type: "GET",
+                success: function (data) {
+                    $("#pendingListContent").html(data);
+                },
+                error: function () {
+                    $("#pendingListContent").html("<p class='text-danger'>Lỗi khi tải danh sách!</p>");
+                }
+            });
+        }
+
+        function loadApprovedList() {
+            $("#approvedListContent").html("<p class='text-center'>Đang tải...</p>");
+            $.ajax({
+                url: "/Student/ListApprovedBorrowByStudent",
+                type: "GET",
+                success: function (data) {
+                    $("#approvedListContent").html(data);
+                },
+                error: function () {
+                    $("#approvedListContent").html("<p class='text-danger'>Lỗi khi tải danh sách!</p>");
+                }
+            });
+        }
+
+        function loadRejectedList() {
+            $("#rejectedListContent").html("<p class='text-center'>Đang tải...</p>");
+            $.ajax({
+                url: "/Student/ListRejectedByStaff",
+                type: "GET",
+                success: function (data) {
+                    $("#rejectedListContent").html(data);
+                },
+                error: function () {
+                    $("#rejectedListContent").html("<p class='text-danger'>Lỗi khi tải danh sách!</p>");
+                }
+            });
+        }
+
+        function loadBorrowingList() {
+            $("#borrowingListContent").html("<p class='text-center'>Đang tải...</p>");
+            $.ajax({
+                url: "/Student/ListBorrowingByStudent",
+                type: "GET",
+                success: function (data) {
+                    $("#borrowingListContent").html(data);
+                },
+                error: function () {
+                    $("#borrowingListContent").html("<p class='text-danger'>Lỗi khi tải danh sách!</p>");
+                }
+            });
+        }
+
+        function loadReturnedList() {
+            $("#returnedListContent").html("<p class='text-center'>Đang tải...</p>");
+            $.ajax({
+                url: "/Student/ListReturnedByStudent",
+                type: "GET",
+                success: function (data) {
+                    $("#returnedListContent").html(data);
+                },
+                error: function () {
+                    $("#returnedListContent").html("<p class='text-danger'>Lỗi khi tải danh sách!</p>");
+                }
+            });
+        }
+
+        function loadOverdueList() {
+            $("#overdueListContent").html("<p class='text-center'>Đang tải...</p>");
+            $.ajax({
+                url: "/Student/ListOverdueByStudent",
+                type: "GET",
+                success: function (data) {
+                    $("#overdueListContent").html(data);
+                },
+                error: function () {
+                    $("#overdueListContent").html("<p class='text-danger'>Lỗi khi tải danh sách!</p>");
+                }
+            });
+        }
+
+        function loadCanceledList() {
+            $("#canceledListContent").html("<p class='text-center'>Đang tải...</p>");
+            $.ajax({
+                url: "/Student/ListCanceledBorrowByStudent",
+                type: "GET",
+                success: function (data) {
+                    $("#canceledListContent").html(data);
+                },
+                error: function () {
+                    $("#canceledListContent").html("<p class='text-danger'>Lỗi khi tải danh sách!</p>");
+                }
+            });
+        }
+
+        // Gọi Ajax khi click vào từng tab
+        $("#loadPendingList").on("click", function (e) {
+            e.preventDefault();
+            loadPendingList();
+        });
+
+        $("#loadApprovedList").on("click", function (e) {
+            e.preventDefault();
+            loadApprovedList();
+        });
+
+        $("#loadRejectedList").on("click", function (e) {
+            e.preventDefault();
+            loadRejectedList();
+        });
+
+        $("#loadBorrowingList").on("click", function (e) {
+            e.preventDefault();
+            loadBorrowingList();
+        });
+
+        $("#loadReturnedList").on("click", function (e) {
+            e.preventDefault();
+            loadReturnedList();
+        });
+
+        $("#loadCanceledList").on("click", function (e) {
+            e.preventDefault();
+            loadCanceledList();
+        });
+
+        $("#loadOverdueList").on("click", function (e) {
+            e.preventDefault();
+            loadOverdueList();
+        });
+
+        // Gọi khi trang load lần đầu
+        loadPendingList();
+        loadApprovedList();
+        loadRejectedList();
+        loadBorrowingList();
+        loadReturnedList();
+        loadOverdueList();
+        loadCanceledList();
+    });
+</script>
+
+
+
+

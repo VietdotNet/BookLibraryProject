@@ -33,6 +33,9 @@ namespace BookLibraryProject
             builder.Services.AddScoped<BorrowRecordService>();
 
             builder.Services.AddTransient<SendMailService>();
+            builder.Services.AddHostedService<OverdueCheckService>();
+            builder.Services.AddHostedService<OverdueBorrowService>();
+
 
             builder.Services.AddAuthentication(options =>
             {

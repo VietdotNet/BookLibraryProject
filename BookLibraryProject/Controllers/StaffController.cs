@@ -1,5 +1,6 @@
 ﻿using BookLibraryProject.Models;
 using BookLibraryProject.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics.CodeAnalysis;
@@ -7,6 +8,7 @@ using System.Security.Claims;
 
 namespace BookLibraryProject.Controllers
 {
+    [Authorize]
     public class StaffController : Controller
     {
         private readonly BorrowRecordService _borrowRecordService;
@@ -123,6 +125,97 @@ namespace BookLibraryProject.Controllers
             return PartialView("_RejectedBorrowList", rejectedBorrows);
         }
 
+        [HttpGet]
+        public async Task<IActionResult> ListBorrowingByStaffAsync()
+        {
+            var borrowingList = await _borrowRecordService.GetListBorrowingByStaffAsync();
+            return PartialView("_BorrowingList", borrowingList);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> TookTheBookByStaffAsync(Guid id)
+        {
+            var record = await _borrowRecordService.GetBorrowRecordById(id);
+            if (record == null || record.StatusId != 6) // Kiểm tra trạng thái "Đã xét duyệt"
+            {
+                return NotFound(new { success = false, message = "Không tìm thấy yêu cầu hoặc trạng thái không hợp lệ." });
+            }
+
+            record.StatusId = 2; // Cập nhật trạng thái "Đang mượn"
+            record.DueDate = DateTime.Now;
+
+            await _borrowRecordService.Update(record);
+
+            return Json(new { success = true, message = "Sách đã được lấy thành công!" });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ListReturnedByStaffAsync()
+        {
+            var returnedList = await _borrowRecordService.GetListReturnedByStaffAsync();
+            return PartialView("_ReturnedList", returnedList);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ConfirmReturnedByStaffAsync(Guid id)
+        {
+            var record = await _borrowRecordService.GetBorrowRecordById(id);
+            if (record == null || record.StatusId != 2 && record.StatusId != 5) 
+            {
+                return NotFound(new { success = false, message = "Không tìm thấy yêu cầu hoặc trạng thái không hợp lệ." });
+            }
+
+            record.StatusId = 3; // Cập nhật trạng thái "Đã trả"
+            record.ReturnDate = DateTime.Now;
+            if(record.Book.BorrowedQuantity > 0)
+            {
+                record.Book.BorrowedQuantity -= 1;
+            }
+
+            await _borrowRecordService.Update(record);
+
+            return Json(new { success = true, message = "Sách đã được trả thành công!" });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ListOverdueByStaffAsync()
+        {
+            var overdueList = await _borrowRecordService.GetListOverdueByStaffAsync();
+            return PartialView("_OverdueList", overdueList);
+        }
+
+
+        [HttpPost]
+        public async Task<IActionResult> RemindByStaffAsync(Guid id)
+        {
+            var record = await _borrowRecordService.GetBorrowRecordById(id);
+            if (record == null || record.StatusId != 5) // Kiểm tra trạng thái "Đăng ký"
+            {
+                return NotFound(new { success = false, message = "Không tìm thấy yêu cầu hoặc trạng thái không hợp lệ." });
+            }
+
+            string formattedPickupDeadline = record.PickupDeadline?.ToString("dd/MM/yyyy") ?? "N/A";
+
+
+            //borrowRecord.PickupDeadline = now.AddDays(15).Date;
+            var mailContent = new MailContent();
+            mailContent.To = record.User.Email;
+            mailContent.Subject = "Thông báo: Đã quá hạn trả sách!";
+            mailContent.Body = "<h3>Bạn đang mượn 1 cuốn sách của thư viện và đã quá hạn trả sách.</h3>" +
+    "<br>Thông tin chi tiết: " +
+    "<br>- <b>Tên sách:</b> " + record.Book.Title +
+    "<br>- <b>Tác giả:</b> " + record.Book.Author +
+    "<br>- <b>Ngày tạo đơn mượn:</b> " + record.BorrowDate +
+    "<br>- <b>Ngày lấy sách:</b> " + record.DueDate +
+    "<br>- <b>Hạn trả sách:</b> <span style='color:red; font-weight:bold;'>" + formattedPickupDeadline + "</span>" +
+    "<br>Vui lòng đến quầy tại thư viện để trả sách sớm nhất để không bị tăng thêm phí phạt!" +
+    "<br>Đọc kỹ quy định mượn/trả sách của thư viện để biết cách tính phí phạt khi bị quá hạn trả sách của thư viện : <a href='https://localhost:7260/Home/Index'>Xem chi tiết</a>";
+
+
+            await _sendMailService.SendMailAsync(mailContent);
+
+            return Json(new { success = true, message = "Gửi mail nhắc nhở thành công!" });
+        }
 
     }
 }

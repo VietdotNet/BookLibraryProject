@@ -16,6 +16,12 @@ namespace BookLibraryProject.Repositories
         Task<List<BorrowRecord>> GetListApprovedByStaffAsync();
 
         Task<List<BorrowRecord>> GetListRejectedByStaffAsync();
+
+        Task<List<BorrowRecord>> GetListBorrowingByStaffAsync();
+
+        Task<List<BorrowRecord>> GetListReturnedByStaffAsync();
+
+        Task<List<BorrowRecord>> GetListOverdueByStaffAsync();
     }
 
 

@@ -36,13 +36,33 @@ namespace BookLibraryProject.Repositories
                 .ToListAsync();
         }
 
+        public async Task<List<BorrowRecord>> GetListBorrowingByStaffAsync()
+        {
+            return await _context.BorrowRecords
+                .Include(b => b.Book)
+                .Include(b => b.User)
+                .Include(b => b.Status)
+                .Where(b => b.StatusId == 2) //Đang mượn
+                .ToListAsync();
+        }
+
+        public async Task<List<BorrowRecord>> GetListOverdueByStaffAsync()
+        {
+            return await _context.BorrowRecords
+               .Include(b => b.Book)
+               .Include(b => b.User)
+               .Include(b => b.Status)
+               .Where(b => b.StatusId == 5) // Xác nhận đã trả
+               .ToListAsync();
+        }
+
         public async Task<List<BorrowRecord>> GetListRejectedByStaffAsync()
         {
             return await _context.BorrowRecords
                 .Include(b => b.Book)
                 .Include(b => b.User)
                 .Include(b => b.Status)
-                .Where(b => b.StatusId == 4) //đã xét duyệt
+                .Where(b => b.StatusId == 4 || b.StatusId == 8)
                 .ToListAsync();
         }
 
@@ -54,6 +74,16 @@ namespace BookLibraryProject.Repositories
                 .Include(b => b.Status)
                 .Where(br => br.StaffId == null) // Lọc các yêu cầu chưa được xử lý bởi nhân viên
                 .OrderBy(br => br.BorrowDate) // Sắp xếp theo BorrowDate giảm dần
+                .ToListAsync();
+        }
+
+        public async Task<List<BorrowRecord>> GetListReturnedByStaffAsync()
+        {
+            return await _context.BorrowRecords
+                .Include(b => b.Book)
+                .Include(b => b.User)
+                .Include(b => b.Status)
+                .Where(b => b.StatusId == 3) // Xác nhận đã trả
                 .ToListAsync();
         }
 

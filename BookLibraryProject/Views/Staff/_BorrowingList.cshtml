@@ -4,11 +4,12 @@
     <thead class="table-dark">
         <tr>
             <th>#</th>
-            <th>Mã cuốn sách</th>
+            <th>Người mượn</th>
             <th>MSV</th>
             <th>Ngày đăng ký</th>
-            <th>Hạn trả</th>
             <th>Ngày duyệt</th>
+            <th>Ngày lấy</th>
+            <th>Hạn trả</th>
             <th>Trạng thái</th>
             <th>Thao tác</th>
         </tr>
@@ -21,18 +22,18 @@
             {
                 <tr>
                     <td>@(index++)</td>
-                    <td>@borrow.Book.Id</td>
+                    <td>@borrow.User.FullName</td>
                     <td>@borrow.User.StudentCode</td>
                     <td>@borrow.BorrowDate</td>
-                    <td>@borrow.PickupDeadline?.ToString("dd-MM-yyyy")</td>
                     <td>@borrow.ApprovedDate</td>
+                    <td>@borrow.DueDate</td>
+                    <td>@borrow.PickupDeadline?.ToString("dd-MM-yyyy")</td>
                     <td>
-                        <span class="badge bg-warning">@borrow.Status.StatusName</span>
+                        <span class="badge bg-info">@borrow.Status.StatusName</span>
                     </td>
                     <td>
                         <a asp-controller="Book" asp-action="DetailBook" asp-route-id="@borrow.BookId" class="btn btn-info btn-sm text-white">📖 Chi tiết</a>
-                        <button class="btn btn-primary btn-sm approve-btn-took" data-id="@borrow.Id">✔ Đã lấy</button>
-                        @* <a asp-controller="Borrow" asp-action="Reject" asp-route-id="@borrow.Id" class="btn btn-outline-danger btn-sm">❌ Hủy</a> *@
+                        <button class="btn btn-primary btn-sm approve-btn-returned" data-id="@borrow.Id">📖 Trả sách</button>
                     </td>
                 </tr>
             }
@@ -40,18 +41,18 @@
         else
         {
             <tr>
-                <td colspan="8" class="text-center">Không có yêu cầu mượn sách nào được duyệt.</td>
+                <td colspan="8" class="text-center">Không có cuốn sách nào đang được mượn.</td>
             </tr>
         }
     </tbody>
 </table>
 
 <script>
-    $(document).on("click", ".approve-btn-took", function () {
+    $(document).on("click", ".approve-btn-returned", function () {
         var id = $(this).data("id");
 
         $.ajax({
-            url: "/Staff/TookTheBookByStaff",
+            url: "/Staff/ConfirmReturnedByStaff",
             type: "POST",
             data: { id: id },
             success: function (response) {
@@ -62,13 +63,13 @@
                     $("button[data-id='" + id + "']").closest("tr").remove();
 
                     // Cập nhật danh sách đang mượn
-                    loadBorrowingList();
+                    loadBorrowingList()
                 } else {
                     alert("Lỗi: " + response.message); // Hiển thị thông báo lỗi từ server
                 }
             },
             error: function () {
-                alert("Lỗi khi thực hiện thao tác 'Đã lấy'!");
+                alert("Lỗi khi thực hiện thao tác 'Đã trả!");
             }
         });
     });
@@ -76,14 +77,14 @@
 
     function loadBorrowingList() {
         $.ajax({
-            url: "/Staff/ListApprovedBorrowByStaff", // API hoặc View trả về danh sách đã duyệt
+            url: "/Staff/ListBorrowingByStaff", 
             type: "GET",
             success: function (data) {
-                $("#borrowingListContainer").html(data); // Cập nhật danh sách đã duyệt
+                $("#borrowingListContainer").html(data); 
             },
             error: function () {
                 alert("Không thể tải danh sách đã duyệt!");
             }
         });
     }
- </script>
+</script>

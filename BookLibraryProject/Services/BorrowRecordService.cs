@@ -7,10 +7,12 @@ namespace BookLibraryProject.Services
     public class BorrowRecordService
     {
         private readonly IBorrowRecordRepository _repo;
+        private readonly BookLibraryManagementProjectContext _context;
 
-        public BorrowRecordService(IBorrowRecordRepository repo)
+        public BorrowRecordService(IBorrowRecordRepository repo, BookLibraryManagementProjectContext context)
         {
             _repo = repo;
+            _context = context;
         }
 
         public async Task CreateRequestBorrow(BorrowRecord record)
@@ -42,5 +44,41 @@ namespace BookLibraryProject.Services
         {
             return await _repo.GetListRejectedByStaffAsync();
         }
+
+        public async Task<List<BorrowRecord>> GetListBorrowingByStaffAsync()
+        {
+            return await _repo.GetListBorrowingByStaffAsync();
+        }
+
+        public async Task<List<BorrowRecord>> GetOverdueBorrowsAsync()
+        {
+            return await _context.BorrowRecords
+                .Include(b => b.User)
+                .Include(b => b.Book)
+                .Where(b => b.StatusId == 6 && b.ApprovedDate.HasValue && b.ApprovedDate.Value.AddDays(3) < DateTime.Now)
+                .ToListAsync();
+        }
+
+        public async Task<List<BorrowRecord>> GetListOverdueAsync()
+        {
+            return await _context.BorrowRecords
+                .Include(b => b.User)
+                .Include(b => b.Book)
+                .Where(b => b.StatusId == 2 && b.PickupDeadline < DateTime.Now)
+                .ToListAsync();
+        }
+
+        public async Task<List<BorrowRecord>> GetListReturnedByStaffAsync()
+        {
+            return await _repo.GetListReturnedByStaffAsync();
+        }
+
+        public async Task<List<BorrowRecord>> GetListOverdueByStaffAsync()
+        {
+            return await _repo.GetListOverdueByStaffAsync();
+        }
+
+
+
     }
 }

@@ -1,0 +1,42 @@
+﻿@model BookLibraryProject.ViewModel.StatisticsViewModel
+
+<div class="container mt-4">
+    <h2>Thống kê thư viện</h2>
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card text-white bg-primary mb-3">
+                <div class="card-header">Tổng số người dùng</div>
+                <div class="card-body">
+                    <h3 class="card-title">@Model.TotalUsers</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card text-white bg-success mb-3">
+                <div class="card-header">Tổng số quyển sách</div>
+                <div class="card-body">
+                    <h3 class="card-title">@Model.TotalBooks</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card text-white bg-warning mb-3">
+                <div class="card-header">Tổng số loại sách</div>
+                <div class="card-body">
+                    <h3 class="card-title">@Model.TotalBookCategories</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card text-white bg-danger mb-3">
+                <div class="card-header">Tổng tiền thu được từ phạt</div>
+                <div class="card-body">
+                    <h3 class="card-title">@Model.TotalFineAmount.ToString("C")</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

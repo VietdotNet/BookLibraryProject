@@ -4,8 +4,7 @@
     <thead class="table-dark">
         <tr>
             <th>#</th>
-            <th>Người mượn</th>
-            <th>MSV</th>
+            <th>Email</th>
             <th>Ngày đăng ký</th>
             <th>Ngày lấy</th>
             <th>Hạn trả</th>
@@ -21,8 +20,7 @@
             {
                 <tr>
                     <td>@(index++)</td>
-                    <td>@borrow.User.FullName</td>
-                    <td>@borrow.User.StudentCode</td>
+                    <td>@borrow.User.Email</td>
                     <td>@borrow.BorrowDate</td>
                     <td>@borrow.DueDate</td>
                     <td class="text-danger fw-bold">@borrow.PickupDeadline?.ToString("dd-MM-yyyy")</td>

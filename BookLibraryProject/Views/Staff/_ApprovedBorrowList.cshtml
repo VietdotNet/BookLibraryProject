@@ -4,11 +4,12 @@
     <thead class="table-dark">
         <tr>
             <th>#</th>
-            <th>Mã cuốn sách</th>
-            <th>MSV</th>
+            <th>Tên sách</th>
+            <th>Email</th>
             <th>Ngày đăng ký</th>
             <th>Hạn trả</th>
             <th>Ngày duyệt</th>
+            <th>Hạn lấy</th>
             <th>Trạng thái</th>
             <th>Thao tác</th>
         </tr>
@@ -21,11 +22,12 @@
             {
                 <tr>
                     <td>@(index++)</td>
-                    <td>@borrow.Book.Id</td>
-                    <td>@borrow.User.StudentCode</td>
+                    <td>@borrow.Book.Title</td>
+                    <td>@borrow.User.Email</td>
                     <td>@borrow.BorrowDate</td>
                     <td>@borrow.PickupDeadline?.ToString("dd-MM-yyyy")</td>
                     <td>@borrow.ApprovedDate</td>
+                    <td>@borrow.ApprovedDate.Value.AddDays(3).ToString("dd-MM-yyyy")</td>
                     <td>
                         <span class="badge bg-warning">@borrow.Status.StatusName</span>
                     </td>

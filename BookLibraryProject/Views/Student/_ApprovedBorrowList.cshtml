@@ -6,7 +6,6 @@
             <th>#</th>
             <th>Tên sách</th>
             <th>Email</th>
-            <th>MSV</th>
             <th>Ngày đăng ký</th>
             <th>Hạn trả</th>
             <th>Ngày duyệt</th>
@@ -25,7 +24,6 @@
                     <td>@(index++)</td>
                     <td>@borrow.Book.Title</td>
                     <td>@borrow.User.Email</td>
-                    <td>@borrow.User.StudentCode</td>
                     <td>@borrow.BorrowDate</td>
                     <td>@borrow.PickupDeadline?.ToString("dd-MM-yyyy")</td>
                     <td>@borrow.ApprovedDate</td>

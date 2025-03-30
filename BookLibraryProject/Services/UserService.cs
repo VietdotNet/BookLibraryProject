@@ -22,5 +22,25 @@ namespace BookLibraryProject.Services
         {
            _repo.InsertUser(email, name);
         }
+
+        public async Task<List<User>> GetUserisStaffOrManager()
+        {
+            return await _repo.GetUserisStaffOrManager();
+        }
+
+        public void CreateUser(string name, string email, int roldId)
+        {
+            _repo.CreateUser(name, email, roldId);
+        }
+
+        public void Delete(User user)
+        {
+            _repo.Delete(user);
+        }
+
+        public User? GetUserById(string Id)
+        {
+            return _repo.GetUserById(Id);
+        }
     }
 }

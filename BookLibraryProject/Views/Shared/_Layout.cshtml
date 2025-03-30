@@ -48,6 +48,15 @@
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Student" asp-action="Index">Lịch sử mượn/trả sách</a>
                             </li>
                         }
+                        @if (User.FindFirstValue(ClaimTypes.NameIdentifier)?.StartsWith("AD") == true)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Admin" asp-action="Index">Quản lý vai trò</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Admin" asp-action="Statistics">Thống kê</a>
+                            </li>
+                        }
 
                     </ul>
                 </div>
@@ -80,7 +89,7 @@
         </main>
     </div>
 
-    <footer class="footer-custom text-white py-4" style="margin-top: 100px;">
+    <footer class="footer-custom text-white py-4" style="margin-top: 300px;">
         <div class="container">
             <div class="row">
                 <!-- Cột 1: Thông tin liên hệ -->

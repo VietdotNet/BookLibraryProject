@@ -1,0 +1,80 @@
+﻿@model IEnumerable<BookLibraryProject.Models.User>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<h2 class="mb-4 text-center book-title" style="color: blue">
+    📖 <span>Quản lý nhân sự</span> 📖
+</h2>
+<p>
+    <a asp-action="Create">Thêm mới</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                ID
+            </th>
+            <th>
+                Họ và Tên
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Email)
+            </th>
+            <th>
+                Số điện thoại
+            </th>
+            <th>
+                Ngày sinh
+            </th>
+            <th>
+                Ngày tạo
+            </th>
+            <th>
+                Ngày cập nhật
+            </th>
+            <th>
+                Vai trò
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Id)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.FullName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Email)
+            </td>
+            <td>
+                 @item.PhoneNumber
+            </td>
+            <td>
+                @item.Dob
+            </td>
+            <td>
+                @item.CreatedAt
+            </td>
+            <td>
+                @item.UpdatedAt
+            </td>
+             <td>
+                    @item.Role.Name
+             </td>
+            <td>
+                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
